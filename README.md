@@ -4,10 +4,10 @@ Produce publication-quality figures out of newick tree files and user-defined gr
 
 Usage
 ```
-Rscript mulberrytree.R <newick_tree> <leaf_classification> <group_colors>
+Rscript mulberrytree.R tree=<newick_tree> groups=<leaf_classification> colors=<group_colors>
 ```
 
 Example run:
 ```
-Rscript mulberrytree.R example/a_treeSimple.tsv example/b_taxa.tsv example/c_colorGroups.tsv
+Rscript mulberrytree.R tree=example/a_treeSimple.tsv groups=example/b_taxa.tsv colors=example/c_colorGroups.tsv
 ```
