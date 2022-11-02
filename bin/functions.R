@@ -1,5 +1,36 @@
 #/usr/bin/Rscript
 
+##### ARGUMENTS
+readArgs <- function(runline) {
+   argtext <- sub(".*--args ",runline)
+   args <- unlist(strsplit(argtext," "))
+
+   do_not_match <- grep("^tree=|^groups=|^colors=", args, invert=TRUE)
+   if (length(do_not_match) > 0) {
+  catyellow("#####################################################\n")
+  catyellow(paste(
+             "\nCould not understand the following arguments:\n", paste(args[do_not_match],collapse="\n"),
+             "\n\nPlease check your command.\n\nYou can run this script without arguments to read the usage information:\n Rscript mulberrytree.R\n\n", sep="")
+          )
+  catyellow("#####################################################\n")
+   }
+
+   tree_arg <- grep("^tree=", args)
+   treefile <- unlist(strsplit( args[ tree_arg ], "="))[2]
+   if (! legnth(treefile)) {
+      stop("Did not find tree file!")
+   }
+
+   group_arg <- grep("^groups=", args)
+   groupfile <- unlist(strsplit( args[ group_arg ], "="))[2]
+
+   color_arg <- grep("^groups=", args)
+   colorfile <- unlist(strsplit( args[ group_arg ], "="))[2]
+
+   filelist <- list(treefile, groupfile, colorfile)
+   return(filelist)
+}
+
 
 ##### PRINTING FUNCTIONS
 catgreen <- function(text) {

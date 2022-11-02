@@ -1,9 +1,15 @@
 #/usr/bin/Rscript
+
+run <- commandArgs(trailingOnly=FALSE)
+file <- grep("--file=",run)
+filename <- sub("--file=","",run[file])
+path <- dirname(filename)
+functionsfile <- paste0(path,"/bin/functions.R")
+source(functionsfile)
+
 suppressMessages(library(tidyverse))
 suppressMessages(library(ggtree))
 suppressMessages(library(tidytree))
-
-source("/local/one/dtamarit/asgard/phylogenomics/trees_laura/All_results_organised_newData/label_coloring/z_functions.R")
 
 
 ###### PARAMETERS
@@ -18,7 +24,8 @@ root = 0
 #taxafile <- "/local/one/dtamarit/asgard/phylogenomics/trees_laura/All_results_organised_newData/z_classif_all.tsv"
 #colorfile <- "/local/one/dtamarit/asgard/phylogenomics/trees_laura/All_results_organised_newData/label_coloring/z_color_groups.tsv"
 
-args <- commandArgs(TRUE)
+args <- readArgs(run)
+
 treefile <- args[1]
 taxafile <- args[2]
 colorfile <- args[3]
