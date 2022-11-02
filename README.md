@@ -5,8 +5,13 @@ Produce publication-quality figures out of newick tree files and user-defined gr
 
 ### Install dependencies
 ```
+# Clone repository
+git clone https://github.com/danieltamarit/mulberrytree.git
+
+# Install basic dependencies
 conda env create -f envs/conda_env_base.yml
 
+# Install ggtree through Bioconductor
 R
 > if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
