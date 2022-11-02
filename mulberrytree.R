@@ -26,9 +26,9 @@ root = 0
 
 args <- readArgs(run)
 
-treefile <- args[1]
-taxafile <- args[2]
-colorfile <- args[3]
+treefile <- args[[1]]
+taxafile <- args[[2]]
+colorfile <- args[[3]]
 
 #"/local/one/dtamarit/asgard/phylogenomics/alpaca_phylogenomics/220824_testtrees/results/NM_testNew_noDPANN_noKor_221t_20171s.fa.SR6.PMSF_GTRG4C60SR6F_2.treefile",
 
