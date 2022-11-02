@@ -7,6 +7,9 @@ path <- dirname(filename)
 functionsfile <- paste0(path,"/bin/functions.R")
 source(functionsfile)
 
+cat("\n")
+
+
 suppressMessages(library(tidyverse))
 suppressMessages(library(ggtree))
 suppressMessages(library(tidytree))
@@ -29,6 +32,16 @@ args <- readArgs(run)
 treefile <- args[[1]]
 taxafile <- args[[2]]
 colorfile <- args[[3]]
+
+catyellow("mulberrytree will use the following files\n")
+catyellow("Tree file: ")
+catcyan(treefile)
+catyellow("Group file: ")
+catcyan(taxafile)
+catyellow("Color file: ")
+catcyan(colorfile)
+cat("\n")
+
 
 #"/local/one/dtamarit/asgard/phylogenomics/alpaca_phylogenomics/220824_testtrees/results/NM_testNew_noDPANN_noKor_221t_20171s.fa.SR6.PMSF_GTRG4C60SR6F_2.treefile",
 
@@ -55,7 +68,6 @@ col_groups <- read_tsv(
 		col_names = c("group", "col"),
 		show_col_types = FALSE
 	   )
-
 cat("\n")
 catyellow("Analysing tree...")
 
