@@ -9,5 +9,5 @@ Rscript mulberrytree.R tree=<newick_tree> groups=<leaf_classification> colors=<g
 
 Example run:
 ```
-Rscript mulberrytree.R tree=example/a_treeSimple.tsv groups=example/b_taxa.tsv colors=example/c_colorGroups.tsv
+Rscript mulberrytree.R tree=example/a_treeSimple.nwk groups=example/b_taxa.tsv colors=example/c_colorGroups.tsv
 ```
