@@ -1,0 +1,74 @@
+#!/usr/bin/bash
+
+Help()
+ {
+    echo "   Add description"
+    echo
+    echo "   Usage: mulberrytree [-h|t|g|c|x|s|]"
+    echo "   Options:"
+    echo "   h     Print this help"
+    echo "   t     Input tree (Newick format)"
+    echo "   g     Group information in tsv format"
+    echo "           (Column 1: Leaf name; Column 2: Group name)"
+    echo "   c     Color information in tsv format"
+    echo "           (Column 1: Group name; Column 2: R-readable color)"
+    echo "   x     Interpret group name from leaf name"
+    echo "   s     Separator for group interpretation from leaf (default: \"|\")"
+}
+
+
+while getopts ":h:t:g:c:xs:" option; do
+   case $option in
+      h) #Display Help
+         Help
+         exit;;
+      t) # Tree filename
+         TREEFILE=$OPTARG;;
+      g) # Groups filename
+         GROUPFILE=$OPTARG;;
+      c) # Colors filename
+         COLORFILE=$OPTARG;;
+      x) # Interpret group from leaf names
+         NAMESFROMLEAF=1;;
+      s) # Separator for group interpretation
+         SEPARATOR=$OPTARG;;
+      \?) # Invalid option
+         echo "Invalid option: -$OPTARG"
+#         exit 1
+         ;;
+
+   esac
+done
+
+if [[ ! $TREEFILE ]];
+   then echo "Tree file is required"
+   exit 1
+fi
+
+SCRIPTPATH=$( cd -- "$(dirname "$0")" >/dev/null 2>&1; pwd -P )
+
+COMMAND=$( echo "Rscript $SCRIPTPATH/bin/mulberrytree.R tree=$TREEFILE")
+
+if [[ $GROUPFILE ]];
+   then COMMAND=$(echo "$COMMAND groups=$GROUPFILE")
+fi
+
+if [[ $COLORFILE ]];
+   then COMMAND=$(echo "$COMMAND colors=$COLORFILE")
+fi
+
+if [[ $NAMESFROMLEAF ]];
+   then COMMAND=$(echo "$COMMAND groupFromName=yes")
+fi
+
+if [[ $SEPARATOR ]];
+   then COMMAND=$(echo "$COMMAND sep=$SEPARATOR")
+fi
+
+
+
+$COMMAND
+
+
+
+exit 0;

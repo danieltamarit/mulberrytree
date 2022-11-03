@@ -16,7 +16,7 @@ run <- commandArgs(trailingOnly=FALSE)
 file <- grep("--file=",run)
 filename <- sub("--file=","",run[file])
 path <- dirname(filename)
-functionsfile <- paste0(path,"/bin/functions.R")
+functionsfile <- paste0(path,"/functions.R")
 source(functionsfile)
 
 
