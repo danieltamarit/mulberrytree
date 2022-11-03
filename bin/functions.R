@@ -27,16 +27,14 @@ readArgs <- function(run) {
 
    group_arg <- grep("^groups=", args)
    groupfile <- unlist(strsplit( args[ group_arg ], "="))[2]
-   if ((length(groupfile) > 0) && (file.exists(groupfile))) {
+   if ((length(groupfile) > 0) && (! file.exists(groupfile))) {
       stop(paste0("Group file provided but not found: ", groupfile))
    }
 
    color_arg <- grep("^colors=", args)
    colorfile <- unlist(strsplit( args[ color_arg ], "="))[2]
-   if (length(colorfile) > 0) {
-      if (! file.exists(colorfile)) {
-         stop(paste0("Color file provided but not found: ", colorfile))
-      }
+   if ((length(colorfile) > 0) && (! file.exists(colorfile))) {
+      stop(paste0("Color file provided but not found: ", colorfile))
    }
 
    groupFromName_arg <- grep("^groupFromName=", args)
@@ -54,7 +52,7 @@ readArgs <- function(run) {
    catcyan(treefile)
    if ((length(groupfile) > 0) && (file.exists(groupfile))) {
       catyellow("Group file: ")
-      catcyan(taxafile)
+      catcyan(groupfile)
    }
    if ((length(colorfile) > 0) && (file.exists(colorfile))) {
       catyellow("Color file: ")
@@ -94,7 +92,13 @@ readArgs <- function(run) {
 
 
 
-   paramlist <- list(tree=treefile, groups=groupfile, color=colorfile, groupFromName=groupFromName, sep=separator)
+   paramlist <- list(
+      tree=treefile,
+      groups=groupfile,
+      color=colorfile,
+      groupFromName=groupFromName,
+      sep=separator
+   )
    return(paramlist)
 }
 

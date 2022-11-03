@@ -76,7 +76,7 @@ fi
 
 
 $COMMAND
-
+echo $COMMAND
 
 
 exit 0;

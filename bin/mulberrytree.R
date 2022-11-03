@@ -13,6 +13,7 @@ root = 0
 ##### DATA FILES
 
 run <- commandArgs(trailingOnly=FALSE)
+print(run)
 file <- grep("--file=",run)
 filename <- sub("--file=","",run[file])
 path <- dirname(filename)
