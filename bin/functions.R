@@ -7,7 +7,7 @@ readArgs <- function(run) {
    args <- run[grep("^--",run, invert=TRUE)]
    args <- args[-1]
 
-   do_not_match <- grep("^tree=|^groups=|^colors=|^groupFromName=|^sep=", args, invert=TRUE)
+   do_not_match <- grep("^tree=|^groups=|^colors=|^groupFromName=|^sep=|^suffix=", args, invert=TRUE)
    if (length(do_not_match) > 0) {
       catyellow("#####################################################\n")
       catyellow(
@@ -17,6 +17,7 @@ readArgs <- function(run) {
           )
        )
        catyellow("#####################################################\n")
+       stop()
    }
 
    tree_arg <- grep("^tree=", args)
@@ -46,16 +47,19 @@ readArgs <- function(run) {
       separator <- "|"
    }
 
+   suffix_arg <- grep("^suffix=", args)
+   suffix <- unlist(strsplit( args[ suffix_arg ], "="))[2]
 
-   catyellow("\nmulberrytree will use the following information\n")
-   catyellow("Tree file: ")
+   catyellow("\nmulberrytree will use the following information:")
+   catyellow("---------------------------------------")
+   catyellow("-Tree file: ")
    catcyan(treefile)
    if ((length(groupfile) > 0) && (file.exists(groupfile))) {
-      catyellow("Group file: ")
+      catyellow("-Group file: ")
       catcyan(groupfile)
    }
    if ((length(colorfile) > 0) && (file.exists(colorfile))) {
-      catyellow("Color file: ")
+      catyellow("-Color file: ")
       catcyan(colorfile)
    }
    if (length(groupFromName) > 0) {
@@ -63,32 +67,28 @@ readArgs <- function(run) {
          if (length(groupfile) > 0) {
             if (file.exists(groupfile)) {
                catyellow(paste0(
-                           "Group interpretation from leaf names using \"",
-                           separator,
-                           "\" as separator ",
-                           "(unless clashing with ",
+                           "-Group interpretation from leaf names unless clashing with \"",
                            groupfile,
-                           ")"
+                           "\".\n-Separator:"
                         ))
+               cat(paste0("\"",separator,"\"\n"))
             }
             if (! file.exists(groupfile)) {
-               catyellow(paste0(
-                           "Group interpretation from leaf names using \"",
-                           separator,
-                           "\" as separator "
-                        ))
+               catyellow("-Group interpretation from leaf names.\n-Separator:")
+               cat(paste0("\"",separator,"\"\n"))
             }
          }
          if (length(groupfile) == 0) {
-            catyellow(paste0(
-                           "Group interpretation from leaf names using \"",
-                           separator,
-                           "\" as separator "
-                     ))
+            catyellow("-Group interpretation from leaf names.\n-Separator:")
+            cat(paste0("\"",separator,"\""))
          }
       }
    }
-   cat("\n")
+   if (length(suffix) > 0) {
+      catyellow("-Suffix to ignore in tree leaf names:")
+      cat(paste0("\"",suffix,"\"\n"))
+   }
+   catyellow("--------------------------------------\n")
 
 
 
@@ -97,7 +97,8 @@ readArgs <- function(run) {
       groups=groupfile,
       color=colorfile,
       groupFromName=groupFromName,
-      sep=separator
+      sep=separator,
+      suffix=suffix
    )
    return(paramlist)
 }
@@ -123,6 +124,28 @@ catcyan <- function(text) {
 
 
 ###### TREE PROCESSING
+
+getLeafNames <- function(tree, taxa, suffix) {
+   full_names <- tibble(
+   						leaves=tree$tip.label,
+   						name=tree$tip.label
+   					)
+   if (length(suffix) > 0) {
+   	full_names <- tibble(
+   							leaves=tree$tip.label,
+   							name=sub(
+   								paste0(suffix,"$"),
+   								"",
+   								tree$tip.label,
+   								perl=TRUE
+   								)
+   							)
+   }
+   leaves <- inner_join(full_names, taxa, by='name')
+   return(leaves)
+}
+
+
 
 taxaFromNames <- function(tree,groups,separator) {
 
@@ -217,7 +240,7 @@ getOffspringLabels <- function(tree, node) {
    return(offspring_labels)
 }
 
-monophyletic_subgroups <- function(tree, leaves, colortable) {
+monophyletic_subgroups <- function(tree, leaves, col_groups) {
 
    groupOTUs = list()
    groupMono = data.frame(group=1,node=1,size=1,col=1)
@@ -229,7 +252,7 @@ monophyletic_subgroups <- function(tree, leaves, colortable) {
        g = groups[i]
        extract_leaves <- leaves %>% filter(group == g) %>% select(leaves)
        leafNames <- extract_leaves$leaves
-       col_g <- colortable %>% filter(group==g) %>% select(col)
+       col_g <- col_groups %>% filter(group==g) %>% select(col)
        if (nrow(col_g) == 0) {
           col_g <- tibble(group=g, col="black")
        }

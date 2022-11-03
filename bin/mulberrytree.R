@@ -13,7 +13,6 @@ root = 0
 ##### DATA FILES
 
 run <- commandArgs(trailingOnly=FALSE)
-print(run)
 file <- grep("--file=",run)
 filename <- sub("--file=","",run[file])
 path <- dirname(filename)
@@ -28,7 +27,7 @@ taxafile <- args$groups
 colorfile <- args$color
 groupFromNames <- args$groupFromName
 separator <- args$sep
-
+suffix <- args$suffix
 
 
 ###### READ DATA
@@ -45,7 +44,7 @@ taxa <- tibble()
 if (length(taxaFromFile) > 0) {
 	taxa <- taxaFromFile
 }
-if (groupFromNames == "yes") {
+if ((length(groupFromNames) > 0) && (groupFromNames == "yes")) {
 	taxa <- taxaFromNames(tree,taxa,separator)
 }
 
@@ -62,10 +61,7 @@ cat("\n")
 ###### PROCESS TAXON NAMES
 catyellow("Analysing tree...")
 
-
-#full_names <- tibble(leaves=tree$tip.label, name=sub("_[0-9]+G$", "", tree$tip.label, perl=TRUE))
-full_names <- tibble(leaves=tree$tip.label, name=tree$tip.label)
-leaves <- inner_join(full_names, taxa, by='name')
+leaves <- getLeafNames(tree, taxa, suffix)
 
 ###### PROCESS COLORS
 

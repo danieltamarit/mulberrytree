@@ -25,7 +25,7 @@ function Help
 }
 
 
-while getopts ":ht:g:c:xs:" option; do
+while getopts ":ht:g:c:ls:x:" option; do
    case $option in
       h) #Display Help
          Help
@@ -36,10 +36,12 @@ while getopts ":ht:g:c:xs:" option; do
          GROUPFILE=$OPTARG;;
       c) # Colors filename
          COLORFILE=$OPTARG;;
-      x) # Interpret group from leaf names
+      l) # Interpret group from leaf names
          NAMESFROMLEAF=1;;
       s) # Separator for group interpretation
          SEPARATOR=$OPTARG;;
+      x) # Separator for group interpretation
+         SUFFIX=$OPTARG;;
       \?) # Invalid option
          echo "Invalid option: -$OPTARG"
 #         exit 1
@@ -73,10 +75,12 @@ if [[ $SEPARATOR ]];
    then COMMAND=$(echo "$COMMAND sep=$SEPARATOR")
 fi
 
-
+if [[ $SUFFIX ]];
+   then COMMAND=$(echo "$COMMAND suffix=$SUFFIX")
+fi
 
 $COMMAND
-echo $COMMAND
+
 
 
 exit 0;
