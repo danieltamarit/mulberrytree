@@ -17,7 +17,7 @@ Help()
 }
 
 
-while getopts ":h:t:g:c:xs:" option; do
+while getopts ":ht:g:c:xs:" option; do
    case $option in
       h) #Display Help
          Help
