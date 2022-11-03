@@ -1,15 +1,5 @@
 #/usr/bin/Rscript
 
-run <- commandArgs(trailingOnly=FALSE)
-file <- grep("--file=",run)
-filename <- sub("--file=","",run[file])
-path <- dirname(filename)
-functionsfile <- paste0(path,"/bin/functions.R")
-source(functionsfile)
-
-cat("\n")
-
-
 suppressMessages(library(tidyverse))
 suppressMessages(library(ggtree))
 suppressMessages(library(tidytree))
@@ -20,47 +10,41 @@ suppressMessages(library(tidytree))
 root = 0
 
 
-
 ##### DATA FILES
 
-#treefile <- "NM-A.fasta.PMSF_LGC60G4F.treefile.renamed.rooted"
-#taxafile <- "/local/one/dtamarit/asgard/phylogenomics/trees_laura/All_results_organised_newData/z_classif_all.tsv"
-#colorfile <- "/local/one/dtamarit/asgard/phylogenomics/trees_laura/All_results_organised_newData/label_coloring/z_color_groups.tsv"
+run <- commandArgs(trailingOnly=FALSE)
+file <- grep("--file=",run)
+filename <- sub("--file=","",run[file])
+path <- dirname(filename)
+functionsfile <- paste0(path,"/bin/functions.R")
+source(functionsfile)
+
 
 args <- readArgs(run)
 
 treefile <- args[[1]]
 taxafile <- args[[2]]
 colorfile <- args[[3]]
-
-catyellow("mulberrytree will use the following files\n")
-catyellow("Tree file: ")
-catcyan(treefile)
-catyellow("Group file: ")
-catcyan(taxafile)
-catyellow("Color file: ")
-catcyan(colorfile)
-cat("\n")
-
-
-#"/local/one/dtamarit/asgard/phylogenomics/alpaca_phylogenomics/220824_testtrees/results/NM_testNew_noDPANN_noKor_221t_20171s.fa.SR6.PMSF_GTRG4C60SR6F_2.treefile",
-
-# args <- c(
-# 	"/local/one/dtamarit/asgard/phylogenomics/alpaca_phylogenomics/220824_testtrees/results/NM_testNew_noDPANN_noKor_195t_19277s.fa.PMSF_LGR4C60F.treefile",
-# 	"/local/one/dtamarit/asgard/phylogenomics/alpaca_phylogenomics/220824_testtrees/z_classif_all.tsv",
-# 	"/local/one/dtamarit/asgard/phylogenomics/alpaca_phylogenomics/220824_testtrees/z_color_groups.tsv"
-# )
-# treefile <- args[1]
-# taxafile <- args[2]
-# colorfile <- args[3]
+groupFromNames <- args[[4]]
 
 ###### READ DATA
 
 catyellow("Reading tree file...")
 tree <- read.tree(treefile)
 
-catyellow("Reading taxon names file...")
-taxa <- read_tsv(taxafile,col_names=c("name","group"),show_col_types = FALSE)
+taxaFromFile <- tibble()
+if ((length(taxafile) > 0) && (file.exists(taxafile))) {
+	catyellow("Reading taxon names file...")
+	taxaFromFile <- read_tsv(taxafile,col_names=c("name","group"),show_col_types = FALSE)
+}
+taxa <- tibble()
+if (length(taxaFromFile) > 0) {
+	taxa <- taxaFromFile
+}
+if (groupFromNames == "yes") {
+	taxa <- taxaFromNames(tree,taxa)
+}
+
 
 catyellow("Reading taxon colors file...")
 col_groups <- read_tsv(
@@ -74,7 +58,8 @@ catyellow("Analysing tree...")
 ###### PROCESS TAXON NAMES
 
 
-full_names <- tibble(leaves=tree$tip.label, name=sub("_[0-9]+G$", "", tree$tip.label, perl=TRUE))
+#full_names <- tibble(leaves=tree$tip.label, name=sub("_[0-9]+G$", "", tree$tip.label, perl=TRUE))
+full_names <- tibble(leaves=tree$tip.label, name=tree$tip.label)
 leaves <- inner_join(full_names, taxa, by='name')
 
 ###### PROCESS COLORS

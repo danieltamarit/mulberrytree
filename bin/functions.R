@@ -7,7 +7,7 @@ readArgs <- function(run) {
    args <- run[grep("^--",run, invert=TRUE)]
    args <- args[-1]
 
-   do_not_match <- grep("^tree=|^groups=|^colors=", args, invert=TRUE)
+   do_not_match <- grep("^tree=|^groups=|^colors=|^groupFromName=", args, invert=TRUE)
    if (length(do_not_match) > 0) {
       catyellow("#####################################################\n")
       catyellow(
@@ -21,18 +21,64 @@ readArgs <- function(run) {
 
    tree_arg <- grep("^tree=", args)
    treefile <- unlist(strsplit( args[ tree_arg ], "="))[2]
-   if (! length(treefile)) {
+   if (! file.exists(treefile)) {
       stop("Did not find tree file!")
    }
 
    group_arg <- grep("^groups=", args)
    groupfile <- unlist(strsplit( args[ group_arg ], "="))[2]
+   if ((length(groupfile) > 0) && (file.exists(groupfile))) {
+      stop(paste0("Group file provided but not found: ", groupfile))
+   }
 
    color_arg <- grep("^colors=", args)
    colorfile <- unlist(strsplit( args[ color_arg ], "="))[2]
+   if (length(colorfile) > 0) {
+      if (! file.exists(colorfile)) {
+         stop(paste0("Color file provided but not found: ", colorfile))
+      }
+   }
 
-   filelist <- list(treefile, groupfile, colorfile)
-   return(filelist)
+   groupFromName_arg <- grep("^groupFromName=", args)
+   groupFromName <- unlist(strsplit( args[ groupFromName_arg ], "="))[2]
+
+
+   catyellow("\nmulberrytree will use the following information\n")
+   catyellow("Tree file: ")
+   catcyan(treefile)
+   if ((length(groupfile) > 0) && (file.exists(groupfile))) {
+      catyellow("Group file: ")
+      catcyan(taxafile)
+   }
+   if (file.exists(colorfile)) {
+      catyellow("Color file: ")
+      catcyan(colorfile)
+   }
+   if (length(groupFromName) > 0) {
+      if (groupFromName == "yes") {
+         if (length(groupfile) > 0) {
+            if (file.exists(groupfile)) {
+               catyellow(paste0(
+                           "Group interpretation from leaf names (unless clashing with ",
+                           groupfile,
+                           ")"
+                        ))
+            }
+            if (! file.exists(groupfile)) {
+               catyellow("Group interpretation from leaf names")
+            }
+         }
+         if (length(groupfile) == 0) {
+            catyellow("Group interpretation from leaf names")
+         }
+      }
+   }
+   cat("\n")
+
+
+
+   paramlist <- list(treefile, groupfile, colorfile,groupFromName)
+   return(paramlist)
 }
 
 
@@ -56,6 +102,24 @@ catcyan <- function(text) {
 
 
 ###### TREE PROCESSING
+
+taxaFromNames <- function(tree,groups) {
+   leaves <- tree$tip.label
+   leaves <- grep("\\|",leaves,value=TRUE)
+   groupsFromNames <- tibble(name=leaves, group=sub("\\|.*","",leaves,perl=TRUE))
+
+   if(length(groups) > 0) {
+      groupsFromNames <- anti_join(groupsFromNames,groups,by="name")
+   }
+   if(length(groups) == 0) {
+      groups <- tibble(name=character(),group=character())
+   }
+   groups <- full_join(groups,groupsFromNames,by=c("name","group"))
+
+   return(groups)
+}
+
+
 
 calculate_x_limit <- function(tree) {
 
@@ -132,6 +196,9 @@ monophyletic_subgroups <- function(tree, leaves, colortable) {
        extract_leaves <- leaves %>% filter(group == g) %>% select(leaves)
        leafNames <- extract_leaves$leaves
        col_g <- colortable %>% filter(group==g) %>% select(col)
+       if (nrow(col_g) == 0) {
+          col_g <- tibble(group=g, col="black")
+       }
 
        groupOTUs[[i]] <- leafNames
        names(groupOTUs)[i] <- g
