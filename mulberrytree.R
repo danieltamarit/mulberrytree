@@ -28,6 +28,8 @@ colorfile <- args$color
 groupFromNames <- args$groupFromName
 separator <- args$sep
 
+
+
 ###### READ DATA
 
 catyellow("Reading tree file...")
