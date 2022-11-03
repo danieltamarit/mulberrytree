@@ -1,10 +1,17 @@
 #!/usr/bin/bash
 
-Help()
+function echoy
+{
+   COL='\033[0;33m'; NC='\033[0m'; echo -e "${COL}$@${NC}";
+}
+
+function Help
  {
-    echo "   Add description"
     echo
-    echo "   Usage: mulberrytree [-h|t|g|c|x|s|]"
+    echoy "   Produce publication-quality figures based on"
+    echoy "   a newick tree file and user-defined group information"
+    echo
+    echoy "   Usage: mulberrytree [-h|t|g|c|x|s]"
     echo "   Options:"
     echo "   h     Print this help"
     echo "   t     Input tree (Newick format)"
@@ -14,6 +21,7 @@ Help()
     echo "           (Column 1: Group name; Column 2: R-readable color)"
     echo "   x     Interpret group name from leaf name"
     echo "   s     Separator for group interpretation from leaf (default: \"|\")"
+    echo
 }
 
 
