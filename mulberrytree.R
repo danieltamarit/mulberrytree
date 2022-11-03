@@ -22,10 +22,11 @@ source(functionsfile)
 
 args <- readArgs(run)
 
-treefile <- args[[1]]
-taxafile <- args[[2]]
-colorfile <- args[[3]]
-groupFromNames <- args[[4]]
+treefile <- args$tree
+taxafile <- args$groups
+colorfile <- args$color
+groupFromNames <- args$groupFromName
+separator <- args$sep
 
 ###### READ DATA
 
@@ -42,7 +43,7 @@ if (length(taxaFromFile) > 0) {
 	taxa <- taxaFromFile
 }
 if (groupFromNames == "yes") {
-	taxa <- taxaFromNames(tree,taxa)
+	taxa <- taxaFromNames(tree,taxa,separator)
 }
 
 
@@ -53,9 +54,10 @@ col_groups <- read_tsv(
 		show_col_types = FALSE
 	   )
 cat("\n")
-catyellow("Analysing tree...")
+
 
 ###### PROCESS TAXON NAMES
+catyellow("Analysing tree...")
 
 
 #full_names <- tibble(leaves=tree$tip.label, name=sub("_[0-9]+G$", "", tree$tip.label, perl=TRUE))

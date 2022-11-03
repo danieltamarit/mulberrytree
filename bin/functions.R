@@ -7,7 +7,7 @@ readArgs <- function(run) {
    args <- run[grep("^--",run, invert=TRUE)]
    args <- args[-1]
 
-   do_not_match <- grep("^tree=|^groups=|^colors=|^groupFromName=", args, invert=TRUE)
+   do_not_match <- grep("^tree=|^groups=|^colors=|^groupFromName=|^sep=", args, invert=TRUE)
    if (length(do_not_match) > 0) {
       catyellow("#####################################################\n")
       catyellow(
@@ -42,6 +42,12 @@ readArgs <- function(run) {
    groupFromName_arg <- grep("^groupFromName=", args)
    groupFromName <- unlist(strsplit( args[ groupFromName_arg ], "="))[2]
 
+   separator_arg <- grep("^sep=", args)
+   separator <- unlist(strsplit( args[ separator_arg ], "="))[2]
+   if (! length(separator) > 0) {
+      separator <- "|"
+   }
+
 
    catyellow("\nmulberrytree will use the following information\n")
    catyellow("Tree file: ")
@@ -50,7 +56,7 @@ readArgs <- function(run) {
       catyellow("Group file: ")
       catcyan(taxafile)
    }
-   if (file.exists(colorfile)) {
+   if ((length(colorfile) > 0) && (file.exists(colorfile))) {
       catyellow("Color file: ")
       catcyan(colorfile)
    }
@@ -59,17 +65,28 @@ readArgs <- function(run) {
          if (length(groupfile) > 0) {
             if (file.exists(groupfile)) {
                catyellow(paste0(
-                           "Group interpretation from leaf names (unless clashing with ",
+                           "Group interpretation from leaf names using \"",
+                           separator,
+                           "\" as separator ",
+                           "(unless clashing with ",
                            groupfile,
                            ")"
                         ))
             }
             if (! file.exists(groupfile)) {
-               catyellow("Group interpretation from leaf names")
+               catyellow(paste0(
+                           "Group interpretation from leaf names using \"",
+                           separator,
+                           "\" as separator "
+                        ))
             }
          }
          if (length(groupfile) == 0) {
-            catyellow("Group interpretation from leaf names")
+            catyellow(paste0(
+                           "Group interpretation from leaf names using \"",
+                           separator,
+                           "\" as separator "
+                     ))
          }
       }
    }
@@ -77,7 +94,7 @@ readArgs <- function(run) {
 
 
 
-   paramlist <- list(treefile, groupfile, colorfile,groupFromName)
+   paramlist <- list(tree=treefile, groups=groupfile, color=colorfile, groupFromName=groupFromName, sep=separator)
    return(paramlist)
 }
 
@@ -103,10 +120,23 @@ catcyan <- function(text) {
 
 ###### TREE PROCESSING
 
-taxaFromNames <- function(tree,groups) {
+taxaFromNames <- function(tree,groups,separator) {
+
+   if (separator == "|") {
+      separator <- "\\|"
+   }
+
    leaves <- tree$tip.label
-   leaves <- grep("\\|",leaves,value=TRUE)
-   groupsFromNames <- tibble(name=leaves, group=sub("\\|.*","",leaves,perl=TRUE))
+   leaves <- grep(separator,leaves,value=TRUE)
+   groupsFromNames <- tibble(
+      name=leaves,
+      group=sub(
+         paste0(separator,".*"),
+         "",
+         leaves,
+         perl=TRUE
+         )
+      )
 
    if(length(groups) > 0) {
       groupsFromNames <- anti_join(groupsFromNames,groups,by="name")
