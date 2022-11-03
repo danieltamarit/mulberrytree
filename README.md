@@ -34,3 +34,7 @@ mulberrytree -t example/a_treeSimple.nwk -g example/b_taxa.tsv -c example/c_colo
 mulberrytree -t example/a_treeSimple2.nwk -l
 mulberrytree -t example/a_treeSimple3.nwk -l -s "___"
 ```
+
+
+
+The name "mulberrytree" is a homage to figtree, a software I have used too many hours of my life using, and for which I often hoped I could have a less manual equivalent.
