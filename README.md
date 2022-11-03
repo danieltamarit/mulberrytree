@@ -28,7 +28,7 @@ mulberrytree -t <newick_tree> -g <leaf_classification> -c <group_colors>
 mulberrytree -t <newick_tree> -l -s "<separator>"
 ```
 
-Example runs:
+### Example runs:
 ```
 mulberrytree -t example/a_treeSimple.nwk -g example/b_taxa.tsv -c example/c_colorGroups.tsv -x "_[0-9]+G"
 mulberrytree -t example/a_treeSimple2.nwk -l
