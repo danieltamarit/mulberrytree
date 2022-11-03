@@ -23,10 +23,14 @@ R
 
 ### Usage
 ```
-Rscript mulberrytree.R tree=<newick_tree> groups=<leaf_classification> colors=<group_colors>
+mulberrytree -h
+mulberrytree -t <newick_tree> -g <leaf_classification> -c <group_colors>
+mulberrytree -t <newick_tree> -l -s "<separator>"
 ```
 
-Example run:
+Example runs:
 ```
-Rscript mulberrytree.R tree=example/a_treeSimple.nwk groups=example/b_taxa.tsv colors=example/c_colorGroups.tsv
+mulberrytree -t example/a_treeSimple.nwk -g example/b_taxa.tsv -c example/c_colorGroups.tsv -x "_[0-9]+G"
+mulberrytree -t example/a_treeSimple2.nwk -l
+mulberrytree -t example/a_treeSimple3.nwk -l -s "___"
 ```
