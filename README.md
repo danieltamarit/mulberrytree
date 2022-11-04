@@ -7,6 +7,7 @@ Produce publication-quality figures out of newick tree files and user-defined gr
 ```
 # Clone repository
 git clone https://github.com/danieltamarit/mulberrytree.git
+cd mulberrytree
 
 # Install basic dependencies
 conda env create -f envs/conda_env_base.yml
