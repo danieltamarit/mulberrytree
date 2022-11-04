@@ -21,11 +21,12 @@ function Help
     echo "           (Column 1: Group name; Column 2: R-readable color)"
     echo "   x     Interpret group name from leaf name"
     echo "   s     Separator for group interpretation from leaf (default: \"|\")"
+    echo "   T     Number of threads (default: 1)"
     echo
 }
 
 
-while getopts ":ht:g:c:ls:x:" option; do
+while getopts ":ht:g:c:ls:x:T:" option; do
    case $option in
       h) #Display Help
          Help
@@ -42,9 +43,11 @@ while getopts ":ht:g:c:ls:x:" option; do
          SEPARATOR=$OPTARG;;
       x) # Separator for group interpretation
          SUFFIX=$OPTARG;;
+      T) # Separator for group interpretation
+         THREADS=$OPTARG;;
       \?) # Invalid option
          echo "Invalid option: -$OPTARG"
-#         exit 1
+         exit 1
          ;;
 
    esac
@@ -77,6 +80,10 @@ fi
 
 if [[ $SUFFIX ]];
    then COMMAND=$(echo "$COMMAND suffix=$SUFFIX")
+fi
+
+if [[ $THREADS ]];
+   then COMMAND=$(echo "$COMMAND threads=$THREADS")
 fi
 
 $COMMAND

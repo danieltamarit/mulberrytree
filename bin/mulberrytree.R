@@ -28,7 +28,7 @@ colorfile <- args$color
 groupFromNames <- args$groupFromName
 separator <- args$sep
 suffix <- args$suffix
-
+threads <- args$threads
 
 ###### READ DATA
 
@@ -45,7 +45,7 @@ if (length(taxaFromFile) > 0) {
 	taxa <- taxaFromFile
 }
 if ((length(groupFromNames) > 0) && (groupFromNames == "yes")) {
-	taxa <- taxaFromNames(tree,taxa,separator)
+	taxa <- taxaFromNames(tree,taxa,separator,suffix)
 }
 
 
@@ -57,6 +57,12 @@ col_groups <- read_tsv(
 	   )
 cat("\n")
 
+if (threads == "") {
+	threads <- 1
+	print("YAY")
+} else {
+	suppressMessages(library(parallel, include.only="mclapply"))
+}
 
 ###### PROCESS TAXON NAMES
 catyellow("Analysing tree...")
@@ -75,7 +81,7 @@ x_limit <- calculate_x_limit(tree)
 
 ##### GATHER MONOPHYLY DATA TO COLLAPSE MONOPHYLETIC GROUPS
 
-objects <- monophyletic_subgroups(tree, leaves, col_groups)
+objects <- monophyletic_subgroups(tree, leaves, col_groups, threads)
 monoNodes <- objects[[1]]
 groupedOTUs <- objects[[2]]
 

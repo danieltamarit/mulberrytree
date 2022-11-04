@@ -7,7 +7,7 @@ readArgs <- function(run) {
    args <- run[grep("^--",run, invert=TRUE)]
    args <- args[-1]
 
-   do_not_match <- grep("^tree=|^groups=|^colors=|^groupFromName=|^sep=|^suffix=", args, invert=TRUE)
+   do_not_match <- grep("^tree=|^groups=|^colors=|^groupFromName=|^sep=|^suffix=|^threads=", args, invert=TRUE)
    if (length(do_not_match) > 0) {
       catyellow("#####################################################\n")
       catyellow(
@@ -50,6 +50,9 @@ readArgs <- function(run) {
    suffix_arg <- grep("^suffix=", args)
    suffix <- unlist(strsplit( args[ suffix_arg ], "="))[2]
 
+   threads_arg <- grep("^threads=", args)
+   threads <- unlist(strsplit( args[ threads_arg ], "="))[2]
+
    catyellow("\nmulberrytree will use the following information:")
    catyellow("---------------------------------------")
    catyellow("-Tree file: ")
@@ -88,6 +91,11 @@ readArgs <- function(run) {
       catyellow("-Suffix to ignore in tree leaf names:")
       cat(paste0("\"",suffix,"\"\n"))
    }
+   if (length(threads) > 0) {
+      catyellow("-Number of threads:")
+      cat(paste0("\"",threads,"\"\n"))
+   }
+
    catyellow("--------------------------------------\n")
 
 
@@ -98,7 +106,8 @@ readArgs <- function(run) {
       color=colorfile,
       groupFromName=groupFromName,
       sep=separator,
-      suffix=suffix
+      suffix=suffix,
+      threads=threads
    )
    return(paramlist)
 }
@@ -147,7 +156,7 @@ getLeafNames <- function(tree, taxa, suffix) {
 
 
 
-taxaFromNames <- function(tree,groups,separator) {
+taxaFromNames <- function(tree,groups,separator,suffix) {
 
    if (separator == "|") {
       separator <- "\\|"
@@ -156,7 +165,12 @@ taxaFromNames <- function(tree,groups,separator) {
    leaves <- tree$tip.label
    leaves <- grep(separator,leaves,value=TRUE)
    groupsFromNames <- tibble(
-      name=leaves,
+      name=sub(
+				paste0(suffix,"$"),
+				"",
+				leaves,
+				perl=TRUE
+				),
       group=sub(
          paste0(separator,".*"),
          "",
@@ -240,67 +254,93 @@ getOffspringLabels <- function(tree, node) {
    return(offspring_labels)
 }
 
-monophyletic_subgroups <- function(tree, leaves, col_groups) {
+monophyletic_subgroups <- function(tree, leaves, col_groups,threads) {
 
-   groupOTUs = list()
+#   groupOTUs = list()
    groupMono = data.frame(group=1,node=1,size=1,col=1)
 
    groups <- leaves %>% select(group) %>% unique()
    groups <- groups$group %>% sort()
 
-   for (i in 1:length(groups)) {
-       g = groups[i]
-       extract_leaves <- leaves %>% filter(group == g) %>% select(leaves)
-       leafNames <- extract_leaves$leaves
-       col_g <- col_groups %>% filter(group==g) %>% select(col)
-       if (nrow(col_g) == 0) {
-          col_g <- tibble(group=g, col="black")
-       }
+   groupOTUs <- sapply(groups, listGroupOTUs)
 
-       groupOTUs[[i]] <- leafNames
-       names(groupOTUs)[i] <- g
-
-
-       if (length(leafNames) > 1) {
-
-          node <- MRCA(tree, leafNames)
-
-          result <- checkMono(tree, leaves, node, g)
-          if (result == "monophyletic") {
-             lab <- getOffspringLabels(tree, node)
-             n_group <- lab %>% nrow()
-
-             groupMono <- rbind(groupMono, c(g, node, n_group, col_g$col))
-             catgreen(paste0("Collapsing ", g, "..."))
-          }
-          if (result == "present") {
-             nodesMono <- vector()
-             nodesMono <- checkChildrenMono(tree, leaves, node, g, nodesMono)
-             n_nodesMono <- length(nodesMono)
-             if (n_nodesMono >= 1) {
-                for (n in 1:n_nodesMono) {
-                   lab <- getOffspringLabels(tree, nodesMono[n])
-                   n_group <- lab %>% nrow()
-                   # if (n_group == 0) {
-                   #    n_group <- 1
-                   # }
-                   groupMono <- rbind(groupMono, c(g, nodesMono[n], n_group, col_g$col))
-
-                   catcyan(paste0("Collapsing ", g, ", ", n, "/", n_nodesMono,"..."))
-                }
-             }
-             if (n_nodesMono == 0) {
-                catcyan(paste0("Not collapsing ", g, "..."))
-             }
-          }
-       }
+   if (threads == 1) {
+      groupMono <- lapply(groups, groupAnalysis)
+   } else {
+      groupMono <- mclapply(groups, groupAnalysis, mc.cores=threads)
    }
-   groupMono <- groupMono[-1,]
+
+   groupMono <- groupMono %>%
+      reduce(full_join,by=c("group","node","size","col"))
+
    groupMono$node <- as.numeric(groupMono$node)
    groupMono$size <- as.numeric(groupMono$size)
 
    return_list <- list(groupMono, groupOTUs)
    return(return_list)
+}
+
+
+listGroupOTUs <- function(group) {
+   g = group
+   extract_leaves <- leaves %>% filter(group == g) %>% select(leaves)
+   leafNames <- extract_leaves$leaves
+
+   return(leafNames)
+}
+
+
+groupAnalysis <- function(group) {
+    g <- group
+    extract_leaves <- leaves %>% filter(group == g) %>% select(leaves)
+    leafNames <- extract_leaves$leaves
+    col_g <- col_groups %>% filter(group==g) %>% select(col)
+    if (nrow(col_g) == 0) {
+       col_g <- tibble(group=g, col="black")
+    }
+
+    groupMono <- data.frame(
+      group=character(),
+      node=numeric(),
+      size=numeric(),
+      col=character()
+   )
+
+    if (length(leafNames) > 1) {
+
+       node <- MRCA(tree, leafNames)
+
+       result <- checkMono(tree, leaves, node, g)
+       if (result == "monophyletic") {
+          lab <- getOffspringLabels(tree, node)
+          n_group <- lab %>% nrow()
+
+          groupMono <- rbind(groupMono, data.frame(group=g, node=node, size=n_group, col=col_g$col))
+          catgreen(paste0("Collapsing ", g, "..."))
+       }
+       if (result == "present") {
+          nodesMono <- vector()
+          nodesMono <- checkChildrenMono(tree, leaves, node, g, nodesMono)
+          n_nodesMono <- length(nodesMono)
+          if (n_nodesMono >= 1) {
+             for (n in 1:n_nodesMono) {
+                lab <- getOffspringLabels(tree, nodesMono[n])
+                n_group <- lab %>% nrow()
+                # if (n_group == 0) {
+                #    n_group <- 1
+                # }
+                groupMono <- rbind(groupMono, data.frame(group=g, node=nodesMono[n], size=n_group, col=col_g$col))
+
+                catcyan(paste0("Collapsing ", g, ", ", n, "/", n_nodesMono,"..."))
+             }
+          }
+          if (n_nodesMono == 0) {
+             catcyan(paste0("Not collapsing ", g, "..."))
+          }
+       }
+    }
+   return(groupMono)
+
 }
 
 
