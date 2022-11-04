@@ -156,7 +156,7 @@ getLeafNames <- function(tree, taxa, suffix) {
 
 
 
-taxaFromNames <- function(tree,groups,separator,suffix) {
+taxaFromNames <- function(tree,taxa,separator,suffix) {
 
    if (separator == "|") {
       separator <- "\\|"
@@ -179,13 +179,13 @@ taxaFromNames <- function(tree,groups,separator,suffix) {
          )
       )
 
-   if(length(groups) > 0) {
-      groupsFromNames <- anti_join(groupsFromNames,groups,by="name")
+   if(length(taxa) > 0) {
+      groupsFromNames_aj <- anti_join(groupsFromNames,taxa,by="name")
    }
-   if(length(groups) == 0) {
-      groups <- tibble(name=character(),group=character())
+   if(length(taxa) == 0) {
+      taxa <- tibble(name=character(),group=character())
    }
-   groups <- full_join(groups,groupsFromNames,by=c("name","group"))
+   groups <- full_join(taxa,groupsFromNames,by=c("name","group"))
 
    return(groups)
 }
