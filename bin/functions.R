@@ -116,7 +116,7 @@ readArgs <- function(run) {
    }
    if (length(threads) > 0) {
       catyellow("-Number of threads:")
-      cat(paste0("\"",threads,"\"\n"))
+      cat(paste0(threads,"\n"))
    }
    if (length(outfile) == 0) {
       outfile <- treefile
@@ -214,12 +214,12 @@ taxaFromNames <- function(tree,taxa,separator,suffix) {
       )
 
    if(length(taxa) > 0) {
-      groupsFromNames_aj <- anti_join(groupsFromNames,taxa,by="name")
+      groupsFromNames <- anti_join(groupsFromNames,taxa,by="name")
    }
    if(length(taxa) == 0) {
       taxa <- tibble(name=character(),group=character())
    }
-   groups <- full_join(taxa,groupsFromNames_aj,by=c("name","group"))
+   groups <- full_join(taxa,groupsFromNames,by=c("name","group"))
 
    return(groups)
 }
