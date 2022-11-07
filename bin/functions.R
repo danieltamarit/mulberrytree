@@ -7,7 +7,19 @@ readArgs <- function(run) {
    args <- run[grep("^--",run, invert=TRUE)]
    args <- args[-1]
 
-   do_not_match <- grep("^tree=|^groups=|^colors=|^groupFromName=|^sep=|^suffix=|^threads=", args, invert=TRUE)
+   do_not_match <- grep(paste(
+                        "^tree=",
+                        "^groups=",
+                        "^colors=",
+                        "^groupFromName=",
+                        "^sep=",
+                        "^suffix=",
+                        "^threads=",
+                        "^out=",
+                        sep="|"
+                        ),
+                        args, invert=TRUE
+                     )
    if (length(do_not_match) > 0) {
       catyellow("#####################################################\n")
       catyellow(
@@ -27,31 +39,42 @@ readArgs <- function(run) {
    }
 
    group_arg <- grep("^groups=", args)
+   groupfile <- ""
    groupfile <- unlist(strsplit( args[ group_arg ], "="))[2]
    if ((length(groupfile) > 0) && (! file.exists(groupfile))) {
       stop(paste0("Group file provided but not found: ", groupfile))
    }
 
    color_arg <- grep("^colors=", args)
+   colorfiles <- ""
    colorfile <- unlist(strsplit( args[ color_arg ], "="))[2]
    if ((length(colorfile) > 0) && (! file.exists(colorfile))) {
       stop(paste0("Color file provided but not found: ", colorfile))
    }
 
    groupFromName_arg <- grep("^groupFromName=", args)
+   groupFromName <- ""
    groupFromName <- unlist(strsplit( args[ groupFromName_arg ], "="))[2]
 
    separator_arg <- grep("^sep=", args)
+   separator <- ""
    separator <- unlist(strsplit( args[ separator_arg ], "="))[2]
    if (! length(separator) > 0) {
       separator <- "|"
    }
 
    suffix_arg <- grep("^suffix=", args)
+   suffix <- ""
    suffix <- unlist(strsplit( args[ suffix_arg ], "="))[2]
 
    threads_arg <- grep("^threads=", args)
+   threads <- ""
    threads <- unlist(strsplit( args[ threads_arg ], "="))[2]
+
+   outfile_arg <- grep("^out=", args)
+   outfile <- ""
+   outfile <- unlist(strsplit( args[ outfile_arg ], "="))[2]
+
 
    catyellow("\nmulberrytree will use the following information:")
    catyellow("---------------------------------------")
@@ -95,6 +118,11 @@ readArgs <- function(run) {
       catyellow("-Number of threads:")
       cat(paste0("\"",threads,"\"\n"))
    }
+   if (length(outfile) == 0) {
+      outfile <- treefile
+   }
+   catyellow("-Will print to files with prefix:")
+   catcyan(outfile)
 
    catyellow("--------------------------------------\n")
 
@@ -107,7 +135,8 @@ readArgs <- function(run) {
       groupFromName=groupFromName,
       sep=separator,
       suffix=suffix,
-      threads=threads
+      threads=threads,
+      outfile=outfile
    )
    return(paramlist)
 }
@@ -234,7 +263,7 @@ checkChildrenMono <- function(tree, leaves, node, group, node_list) {
 
    children <- tree %>% child(node)
 
-   for (i in 1:2) {
+   for (i in 1:length(children)) {
       result <- checkMono(tree, leaves, children[i], group)
       if (result == "monophyletic") {
          node_list <- c(node_list, children[i])

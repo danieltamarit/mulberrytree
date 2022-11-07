@@ -19,6 +19,7 @@ function Help
     echo "           (Column 1: Leaf name; Column 2: Group name)"
     echo "   c     Color information in tsv format"
     echo "           (Column 1: Group name; Column 2: R-readable color)"
+    echo "   o     Prefix for output files"
     echo "   x     Interpret group name from leaf name"
     echo "   s     Separator for group interpretation from leaf (default: \"|\")"
     echo "   T     Number of threads (default: 1)"
@@ -26,7 +27,7 @@ function Help
 }
 
 
-while getopts ":ht:g:c:ls:x:T:" option; do
+while getopts ":ht:g:c:ls:x:T:o:" option; do
    case $option in
       h) #Display Help
          Help
@@ -45,6 +46,8 @@ while getopts ":ht:g:c:ls:x:T:" option; do
          SUFFIX=$OPTARG;;
       T) # Separator for group interpretation
          THREADS=$OPTARG;;
+      o) # Separator for group interpretation
+         OUT=$OPTARG;;
       \?) # Invalid option
          echo "Invalid option: -$OPTARG"
          exit 1
@@ -84,6 +87,10 @@ fi
 
 if [[ $THREADS ]];
    then COMMAND=$(echo "$COMMAND threads=$THREADS")
+fi
+
+if [[ $OUT ]];
+   then COMMAND=$(echo "$COMMAND out=$OUT")
 fi
 
 $COMMAND

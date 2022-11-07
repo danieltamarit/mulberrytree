@@ -19,15 +19,16 @@ path <- dirname(filename)
 functionsfile <- paste0(path,"/functions.R")
 source(functionsfile)
 
-args <- readArgs(run)
+arguments <- readArgs(run)
 
-treefile <- args$tree
-taxafile <- args$groups
-colorfile <- args$color
-groupFromNames <- args$groupFromName
-separator <- args$sep
-suffix <- args$suffix
-threads <- args$threads
+treefile <- arguments$tree
+taxafile <- arguments$groups
+colorfile <- arguments$color
+groupFromNames <- arguments$groupFromName
+separator <- arguments$sep
+suffix <- arguments$suffix
+threads <- arguments$threads
+outfile <- arguments$outfile
 
 ###### READ DATA
 
@@ -56,7 +57,8 @@ col_groups <- read_tsv(
 	   )
 cat("\n")
 
-if ((length(threads)>0) && (threads == "")) {
+
+if ((length(threads)==0) || (threads == "")) {
 	threads <- 1
 } else {
 	suppressMessages(library(parallel, include.only="mclapply"))
@@ -93,6 +95,7 @@ nNodes <- groupedTree$Nnode
 
 cat("\n")
 catyellow("Preparing collapsed tree...")
+cat("\n")
 
 p <- ggtree(groupedTree) + xlim(NA,x_limit)
 p <- collapse_tree(p, monoNodes, nNodes)
@@ -106,7 +109,7 @@ p <- p + theme_tree2() + guides(color="none")
 ###### PRINT
 catyellow("Plotting collapsed tree...")
 
-outfile_collapsed = paste0(treefile,"_collapsed.pdf")
+outfile_collapsed = paste0(outfile,"_collapsed.pdf")
 cairo_pdf(outfile_collapsed, family="Liberation Sans")
 p
 invisible(dev.off())
@@ -127,7 +130,7 @@ q <- print_support_values(q)
 q <- draw_root(tree, q, root)
 q <- q + theme_tree2()
 
-outfile_uncollapsed = paste0(treefile,"_uncollapsed.pdf")
+outfile_uncollapsed = paste0(outfile,"_uncollapsed.pdf")
 pdf(outfile_uncollapsed,height=12)
 q
 invisible(dev.off())
