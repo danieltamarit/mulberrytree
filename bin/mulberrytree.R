@@ -91,7 +91,7 @@ groupedOTUs <- objects[[2]]
 groupedTree <- groupClade(tree, monoNodes$node)
 nNodes <- groupedTree$Nnode
 
-###### BASE TREE, RESCALE MONOPHYLETIC GROUPS AND PRINT THEM
+###### CREATE BASE TREE, RESCALE MONOPHYLETIC GROUPS AND PRINT THEM
 
 cat("\n")
 catyellow("Plotting collapsed tree...")
@@ -113,19 +113,12 @@ p
 invisible(dev.off())
 
 
-
-
-
-
-#quit(save="no")
-
-
-
 #####################################
 #####################################
 ##   Tree with uncollapsed groups  ##
 #####################################
 #####################################
+
 
 catyellow("Plotting uncollapsed tree...")
 
@@ -139,48 +132,3 @@ outfile_uncollapsed = paste0(treefile,"_uncollapsed.pdf")
 pdf(outfile_uncollapsed,height=12)
 q
 invisible(dev.off())
-
-
-
-######################################
-######################################
-##    Tree with collapsed groups    ##
-# (only if single monophyletic group)#
-######################################
-######################################
-
-##### GATHER MONOPHYLY DATA TO COLLAPSE MONOPHYLETIC GROUPS
-
-#objects <- monophyleticGroups(tree, leaves, col_groups)
-#monoNodes <- objects[[1]]
-#groupedOTUs <- objects[[2]]
-
-###### GROUP NODES REPRESENTING MONOPHYLETIC GROUPS (REQUIRED FOR COLLAPSING)
-
-#groupedTree <- groupClade(tree, monoNodes$node)
-#nNodes <- groupedTree$Nnode
-
-###### BASE TREE, RESCALE MONOPHYLETIC GROUPS AND PRINT THEM
-
-#p <- ggtree(groupedTree) + xlim(NA,x_limit)
-#p <- rescaleTree(p, monoNodes, nNodes)
-#p <- color_branches_in_plot(p, groupedOTUs, color_vector_groups)
-#p <- draw_support_values(p)
-
-###### PRINT
-
-#outfile_collapsed = paste0(treefile,"_collapsed.pdf")
-#pdf(outfile_collapsed)
-#p + theme_tree2()
-#invisible(dev.off())
-
-
-
-######################################
-######################################
-##    Tree with collapsed groups    ##
-# (only if single monophyletic group)#
-######################################
-######################################
-
-##### GATHER MONOPHYLY DATA TO COLLAPSE MONOPHYLETIC GROUPS
