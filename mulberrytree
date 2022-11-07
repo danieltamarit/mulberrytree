@@ -20,8 +20,9 @@ function Help
     echo "   c     Color information in tsv format"
     echo "           (Column 1: Group name; Column 2: R-readable color)"
     echo "   o     Prefix for output files"
-    echo "   x     Interpret group name from leaf name"
+    echo "   l     Interpret group name from leaf name"
     echo "   s     Separator for group interpretation from leaf (default: \"|\")"
+    echo "   x     Text or regular expression to be ignored as leaf name suffix"
     echo "   T     Number of threads (default: 1)"
     echo
 }

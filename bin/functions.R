@@ -219,7 +219,7 @@ taxaFromNames <- function(tree,taxa,separator,suffix) {
    if(length(taxa) == 0) {
       taxa <- tibble(name=character(),group=character())
    }
-   groups <- full_join(taxa,groupsFromNames,by=c("name","group"))
+   groups <- full_join(taxa,groupsFromNames_aj,by=c("name","group"))
 
    return(groups)
 }
@@ -436,6 +436,7 @@ color_branches <- function(plot, groupedOTUs, color_vector_groups) {
    plot <- groupOTU(plot, groupedOTUs, 'group') +
         aes(color=group) +
         scale_color_manual(values=color_vector_groups) +
+        guides(color=guide_legend(ncol=1)) +
         theme(legend.position="none")
    return(plot)
 }
@@ -560,4 +561,20 @@ draw_root <- function(tree, plot, root)  {
    plot <- plot + geom_rootedge(rootedge = rootedge)
 
    return(plot)
+}
+
+
+calculateHeightCollapsed <- function(tree, toCollapse) {
+   nLeaves <- length(tree$tip.label)
+   nCollapsedGroups <- nrow(toCollapse)
+   uncollapsedLeaves <- nLeaves - sum(toCollapse$size)
+
+   height=3*uncollapsedLeaves/100 + 20*nCollapsedGroups/100
+   return(height)
+}
+
+calculateHeightUncollapsed <- function(tree) {
+   nLeaves <- length(tree$tip.label)
+   height=4*nLeaves/100
+   return(height)
 }

@@ -109,8 +109,10 @@ p <- p + theme_tree2() + guides(color="none")
 ###### PRINT
 catyellow("Plotting collapsed tree...")
 
+heightCollapsed <- calculateHeightCollapsed(tree, monoNodes)
+
 outfile_collapsed = paste0(outfile,"_collapsed.pdf")
-cairo_pdf(outfile_collapsed, family="Liberation Sans")
+cairo_pdf(outfile_collapsed, family="Liberation Sans",height=heightCollapsed)
 p
 invisible(dev.off())
 
@@ -130,7 +132,9 @@ q <- print_support_values(q)
 q <- draw_root(tree, q, root)
 q <- q + theme_tree2()
 
+heightUncollapsed <- calculateHeightUncollapsed(tree)
+
 outfile_uncollapsed = paste0(outfile,"_uncollapsed.pdf")
-pdf(outfile_uncollapsed,height=12)
+pdf(outfile_uncollapsed,height=heightUncollapsed)
 q
 invisible(dev.off())
