@@ -11,14 +11,8 @@ cd mulberrytree
 
 # Install basic dependencies
 conda env create -f envs/conda_env_base.yml
+conda activate mulberry
 
-# Install ggtree through Bioconductor
-R
-> if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-> BiocManager::install("ggtree")
-> quit()
 ```
 
 
