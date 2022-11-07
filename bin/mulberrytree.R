@@ -19,7 +19,6 @@ path <- dirname(filename)
 functionsfile <- paste0(path,"/functions.R")
 source(functionsfile)
 
-
 args <- readArgs(run)
 
 treefile <- args$tree
@@ -57,9 +56,8 @@ col_groups <- read_tsv(
 	   )
 cat("\n")
 
-if (threads == "") {
+if ((length(threads)>0) && (threads == "")) {
 	threads <- 1
-	print("YAY")
 } else {
 	suppressMessages(library(parallel, include.only="mclapply"))
 }
@@ -94,7 +92,7 @@ nNodes <- groupedTree$Nnode
 ###### CREATE BASE TREE, RESCALE MONOPHYLETIC GROUPS AND PRINT THEM
 
 cat("\n")
-catyellow("Plotting collapsed tree...")
+catyellow("Preparing collapsed tree...")
 
 p <- ggtree(groupedTree) + xlim(NA,x_limit)
 p <- collapse_tree(p, monoNodes, nNodes)
@@ -106,6 +104,7 @@ p <- p + theme_tree2() + guides(color="none")
 
 
 ###### PRINT
+catyellow("Plotting collapsed tree...")
 
 outfile_collapsed = paste0(treefile,"_collapsed.pdf")
 cairo_pdf(outfile_collapsed, family="Liberation Sans")

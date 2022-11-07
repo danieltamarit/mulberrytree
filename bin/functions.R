@@ -83,7 +83,7 @@ readArgs <- function(run) {
          }
          if (length(groupfile) == 0) {
             catyellow("-Group interpretation from leaf names.\n-Separator:")
-            cat(paste0("\"",separator,"\""))
+            cat(paste0("\"",separator,"\"\n"))
          }
       }
    }
@@ -126,6 +126,11 @@ catyellow <- function(text) {
 }
 catcyan <- function(text) {
    col_start <- "\033[0;0;36m"
+   col_end <- "\033[0m"
+   cat(paste0(col_start, text, col_end, "\n"))
+}
+catmagenta <- function(text) {
+   col_start <- "\033[0;0;35m"
    col_end <- "\033[0m"
    cat(paste0(col_start, text, col_end, "\n"))
 }
@@ -335,7 +340,7 @@ groupAnalysis <- function(group) {
              }
           }
           if (n_nodesMono == 0) {
-             catcyan(paste0("Not collapsing ", g, "..."))
+             catmagenta(paste0("Not collapsing ", g, "..."))
           }
        }
     }
