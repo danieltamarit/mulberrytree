@@ -81,6 +81,7 @@ dependencies:
   - r-biocmanager
   - r-tidytree
   - r-tidyverse
+  - r-phytools
   - bioconductor-ggtree
   - readline=8.1.2=h7f8727e_1
   - sed=4.8=he412f7d_0
@@ -105,7 +106,6 @@ dependencies:
   - xz=5.2.6=h5eee18b_0
   - zlib=1.2.12=h5eee18b_3
   - zstd=1.5.2=h6239696_4
+  - pip==22.2.2
   - pip:
-    - pip==22.2.2
     - setuptools==63.4.1
-
