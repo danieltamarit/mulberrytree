@@ -12,24 +12,26 @@ function Help
     echoy "   a newick tree file and user-defined group information"
     echo
     echoy "   Usage: mulberrytree [-h|t|g|c|x|s]"
-    echo "   Options:"
-    echo "   h     Print this help"
-    echo "   t     Input tree in Newick format (required)"
-    echo "   g     Group information in tsv format"
-    echo "           (Column 1: Leaf name; Column 2: Group name)"
-    echo "   c     Color information in tsv format"
-    echo "           (Column 1: Group name; Column 2: R-readable color)"
-    echo "   o     Prefix for output files"
-    echo "   l     Interpret group name from leaf name"
-    echo "   s     Separator for group interpretation from leaf (default: \"|\")"
-    echo "   x     Text or regular expression to be ignored as leaf name suffix"
-    echo "   T     Number of threads used for tree processing (default: 1)"
-    echo "            Note: optimal speed often reached with 1-2 threads"
-    echo
+    echo "   Options:
+   -h     Print this help
+   -t     Input tree in Newick format (required)
+   -g     Group information in tsv format
+            (Column 1: Leaf name; Column 2: Group name)
+   -c     Color information in tsv format
+            (Column 1: Group name; Column 2: R-readable color)
+   -m     Midpoint root
+   -o     Prefix for output files
+   -l     Interpret group name from leaf name
+   -s     Separator for group interpretation from leaf (default: \"|\")
+   -x     Text or regular expression to be ignored as leaf name suffix
+   -T     Number of threads used for tree processing (default: 1)
+            Note: optimal speed often reached with 1-2 threads
+
+"
 }
 
 
-while getopts ":ht:g:c:ls:x:T:o:" option; do
+while getopts ":ht:g:c:ls:x:T:o:m" option; do
    case $option in
       h) #Display Help
          Help
@@ -44,12 +46,14 @@ while getopts ":ht:g:c:ls:x:T:o:" option; do
          NAMESFROMLEAF=1;;
       s) # Separator for group interpretation
          SEPARATOR=$OPTARG;;
-      x) # Separator for group interpretation
+      x) # Suffix to be ignored in leaf names
          SUFFIX=$OPTARG;;
-      T) # Separator for group interpretation
+      T) # Number of threads
          THREADS=$OPTARG;;
-      o) # Separator for group interpretation
+      o) # Output file prefix
          OUT=$OPTARG;;
+      m) # Midpoint root
+         MIDPOINT=1;;
       \?) # Invalid option
          echo "Invalid option: -$OPTARG"
          exit 1
@@ -95,8 +99,11 @@ if [[ $OUT ]];
    then COMMAND=$(echo "$COMMAND out=$OUT")
 fi
 
-$COMMAND
+if [[ $MIDPOINT ]];
+   then COMMAND=$(echo "$COMMAND midpoint=yes")
+fi
 
+$COMMAND
 
 
 exit 0;

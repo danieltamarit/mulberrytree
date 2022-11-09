@@ -5,12 +5,17 @@ start_time <- Sys.time()
 suppressMessages(library(tidyverse))
 suppressMessages(library(ggtree))
 suppressMessages(library(tidytree))
+suppressMessages(library(phytools, include.only="midpoint.root"))
 
 
 ###### PARAMETERS
 
 root = 0
-
+dev=0
+if(dev) {
+	source("bin/functions.R")
+	arguments <- list()
+}
 
 ##### DATA FILES
 
@@ -31,11 +36,15 @@ separator <- arguments$sep
 suffix <- arguments$suffix
 threads <- arguments$threads
 outfile <- arguments$outfile
+midpoint <- arguments$midpoint
 
 ###### READ DATA
 
 catyellow("Reading tree file...")
 tree <- read.tree(treefile)
+if (length(midpoint) > 0) {
+	tree <- midpoint.root(tree)
+}
 
 taxaFromFile <- tibble()
 if ((length(taxafile) > 0) && (file.exists(taxafile))) {

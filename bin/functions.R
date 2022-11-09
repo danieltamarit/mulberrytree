@@ -16,6 +16,7 @@ readArgs <- function(run) {
                         "^suffix=",
                         "^threads=",
                         "^out=",
+                        "^midpoint=",
                         sep="|"
                         ),
                         args, invert=TRUE
@@ -51,6 +52,10 @@ readArgs <- function(run) {
    if ((length(colorfile) > 0) && (! file.exists(colorfile))) {
       stop(paste0("Color file provided but not found: ", colorfile))
    }
+
+   midpoint_arg <- grep("^midpoint=", args)
+   midpoint <- ""
+   midpoint <- unlist(strsplit( args[ midpoint_arg ], "="))[2]
 
    groupFromName_arg <- grep("^groupFromName=", args)
    groupFromName <- ""
@@ -110,6 +115,9 @@ readArgs <- function(run) {
          }
       }
    }
+   if ((length(midpoint) > 0)&&(midpoint=="yes")) {
+      catyellow("-Tree will be rooted at midpoint")
+   }
    if (length(suffix) > 0) {
       catyellow("-Suffix to ignore in tree leaf names:")
       cat(paste0("\"",suffix,"\"\n"))
@@ -137,7 +145,8 @@ readArgs <- function(run) {
       sep=separator,
       suffix=suffix,
       threads=threads,
-      outfile=outfile
+      outfile=outfile,
+      midpoint=midpoint
    )
    return(paramlist)
 }
@@ -580,6 +589,7 @@ calculateHeightCollapsed <- function(tree, toCollapse) {
    uncollapsedLeaves <- nLeaves - sum(toCollapse$size)
 
    height=3*uncollapsedLeaves/100 + 20*nCollapsedGroups/100
+   height <- max(height,5)
    return(height)
 }
 
