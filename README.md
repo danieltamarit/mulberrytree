@@ -1,5 +1,7 @@
 # mulberrytree
 
+![Mulberry tree painting by Van Gogh](https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/The_Mulberry_Tree_by_Vincent_van_Gogh.jpg/291px-The_Mulberry_Tree_by_Vincent_van_Gogh.jpg)
+
 Produce publication-quality figures out of newick tree files and user-defined groups of leaves.
 
 
