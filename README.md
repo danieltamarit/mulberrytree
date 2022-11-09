@@ -16,7 +16,23 @@ conda activate mulberry
 ```
 
 
-### Usage
+### Options
+```
+   h     Print this help
+   t     Input tree in Newick format (required)
+   g     Group information in tsv format
+           (Column 1: Leaf name; Column 2: Group name)
+   c     Color information in tsv format
+           (Column 1: Group name; Column 2: R-readable color)
+   o     Prefix for output files
+   l     Interpret group name from leaf name
+   s     Separator for group interpretation from leaf (default: "|")
+   x     Text or regular expression to be ignored as leaf name suffix
+   T     Number of threads used for tree processing (default: 1)
+            Note: optimal speed often reached with 1-2 threads
+```
+
+### Basic usage
 ```
 mulberrytree -h
 mulberrytree -t <newick_tree> -g <leaf_classification> -c <group_colors>

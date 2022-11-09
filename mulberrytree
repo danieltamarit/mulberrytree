@@ -14,7 +14,7 @@ function Help
     echoy "   Usage: mulberrytree [-h|t|g|c|x|s]"
     echo "   Options:"
     echo "   h     Print this help"
-    echo "   t     Input tree (Newick format)"
+    echo "   t     Input tree in Newick format (required)"
     echo "   g     Group information in tsv format"
     echo "           (Column 1: Leaf name; Column 2: Group name)"
     echo "   c     Color information in tsv format"
@@ -23,7 +23,8 @@ function Help
     echo "   l     Interpret group name from leaf name"
     echo "   s     Separator for group interpretation from leaf (default: \"|\")"
     echo "   x     Text or regular expression to be ignored as leaf name suffix"
-    echo "   T     Number of threads (default: 1)"
+    echo "   T     Number of threads used for tree processing (default: 1)"
+    echo "            Note: optimal speed often reached with 1-2 threads"
     echo
 }
 
