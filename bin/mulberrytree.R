@@ -59,14 +59,16 @@ if ((length(groupFromNames) > 0) && (groupFromNames == "yes")) {
 	taxa <- taxaFromNames(tree,taxa,separator,suffix)
 }
 
-
-catyellow("Reading taxon colors file...")
-col_groups <- read_tsv(
-		colorfile,
-		col_names = c("group", "col"),
-		show_col_types = FALSE
-	   )
-cat("\n")
+col_groups <- tibble(group=character(),col=character())
+if (length(colorfile) > 0) {
+	catyellow("Reading taxon colors file...")
+	col_groups <- read_tsv(
+			colorfile,
+			col_names = c("group", "col"),
+			show_col_types = FALSE
+		   )
+	cat("\n")
+}
 
 
 if ((length(threads)==0) || (threads == "")) {
