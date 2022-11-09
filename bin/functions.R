@@ -129,9 +129,17 @@ readArgs <- function(run) {
    if (length(outfile) == 0) {
       outfile <- treefile
    }
+   outfile <- sub(".(nwk|tree|treefile|tre)$","",outfile,perl=TRUE)
+
+   if (length(midpoint) > 0) {
+      outfile <- paste0(outfile,"_mp-")
+   } else {
+      outfile <- paste0(outfile,"_")
+   }
+
    catyellow("-Will print to files:")
-   catcyan(paste0(outfile,"_collapsed.pdf"))
-   catcyan(paste0(outfile,"_uncollapsed.pdf"))
+   catcyan(paste0(outfile,"collapsedTree.pdf"))
+   catcyan(paste0(outfile,"uncollapsedTree.pdf"))
 
    catyellow("--------------------------------------\n")
 

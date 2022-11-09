@@ -122,7 +122,7 @@ catyellow("Plotting collapsed tree...")
 
 heightCollapsed <- calculateHeightCollapsed(tree, monoNodes)
 
-outfile_collapsed = paste0(outfile,"_collapsed.pdf")
+outfile_collapsed = paste0(outfile,"collapsedTree.pdf")
 cairo_pdf(outfile_collapsed, family="Liberation Sans",height=heightCollapsed)
 p
 invisible(dev.off())
@@ -145,7 +145,7 @@ q <- q + theme_tree2()
 
 heightUncollapsed <- calculateHeightUncollapsed(tree)
 
-outfile_uncollapsed = paste0(outfile,"_uncollapsed.pdf")
+outfile_uncollapsed = paste0(outfile,"uncollapsedTree.pdf")
 pdf(outfile_uncollapsed,height=heightUncollapsed)
 q
 invisible(dev.off())
