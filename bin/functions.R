@@ -121,8 +121,9 @@ readArgs <- function(run) {
    if (length(outfile) == 0) {
       outfile <- treefile
    }
-   catyellow("-Will print to files with prefix:")
-   catcyan(outfile)
+   catyellow("-Will print to files:")
+   catcyan(paste0(outfile,"_collapsed.pdf"))
+   catcyan(paste0(outfile,"_uncollapsed.pdf"))
 
    catyellow("--------------------------------------\n")
 
@@ -444,7 +445,13 @@ color_branches <- function(plot, groupedOTUs, color_vector_groups) {
 calculate_thresholds <- function(plot, low, medium, high) {
    type <- ""
 
-   max <- plot$data %>% filter(str_detect(label,"^[0-9]+$")) %>% select(label) %>% simplify() %>% as.numeric() %>% max()
+   max <- plot$data %>%
+            filter(! isTip) %>%
+            filter(str_detect(label,"^[\\.0-9]+$")) %>%
+            select(label) %>%
+            simplify() %>%
+            as.numeric() %>%
+            max()
 
    ifelse(max > 1,
       type <- "percent",
@@ -460,8 +467,11 @@ calculate_thresholds <- function(plot, low, medium, high) {
    return(thresholds)
 }
 
-draw_support_values <- function(plot, low_threshold=70, medium_threshold=95, high_threshold=100) {
+draw_support_values <- function(plot) {
 
+   low_threshold <- 70
+   medium_threshold <- 95
+   high_threshold <- 100
    thresholds <- calculate_thresholds(plot, low_threshold, medium_threshold, high_threshold)
 
    plot$data <- plot$data %>% mutate(

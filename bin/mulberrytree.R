@@ -1,5 +1,7 @@
 #/usr/bin/Rscript
 
+start_time <- Sys.time()
+
 suppressMessages(library(tidyverse))
 suppressMessages(library(ggtree))
 suppressMessages(library(tidytree))
@@ -138,3 +140,12 @@ outfile_uncollapsed = paste0(outfile,"_uncollapsed.pdf")
 pdf(outfile_uncollapsed,height=heightUncollapsed)
 q
 invisible(dev.off())
+
+end_time <- Sys.time()
+secs <- as.numeric(end_time-start_time) %>% round(digits=2)
+mins <- as.numeric(end_time-start_time,units="mins") %>% round(digits=2)
+
+cat("\n")
+catyellow(paste0("Total time: ",secs, " seconds (", mins, " mins)"))
+catyellow("Enjoy your tree! =)")
+cat("\n")
