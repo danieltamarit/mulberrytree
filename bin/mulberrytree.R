@@ -6,12 +6,14 @@ suppressMessages(library(tidyverse))
 suppressMessages(library(ggtree))
 suppressMessages(library(tidytree))
 suppressMessages(library(phytools, include.only="midpoint.root"))
-
+suppressMessages(library(ape, include.only="write.nexus"))
+suppressMessages(library(gplots, include.only="col2hex"))
 
 ###### PARAMETERS
 
 root = 0
 dev=0
+#dev=1
 if(dev) {
 	source("bin/functions.R")
 	arguments <- list()
@@ -35,7 +37,9 @@ groupFromNames <- arguments$groupFromName
 separator <- arguments$sep
 suffix <- arguments$suffix
 threads <- arguments$threads
-outfile <- arguments$outfile
+outfileCol <- arguments$outfileCol
+outfileColNxs <- arguments$outfileColNxs
+outfileUncol <- arguments$outfileUncol
 midpoint <- arguments$midpoint
 
 ###### READ DATA
@@ -97,7 +101,12 @@ x_limit <- calculate_x_limit(tree)
 objects <- monophyletic_subgroups(tree, leaves, col_groups, threads)
 monoNodes <- objects[[1]]
 groupedOTUs <- objects[[2]]
+outtree <- objects[[3]]
 
+write.nexus(outtree, file=outfileColNxs)
+system(paste0("perl -pe 's/-0.0/,0.0/g; s/-!/,!/g' -i ", outfileColNxs))
+system(paste0("cat ", outfileColNxs, " ", path, "/figtreeblock.txt", " > .mulberrytmp"))
+system(paste0("mv .mulberrytmp ", outfileColNxs))
 
 ###### GROUP NODES REPRESENTING MONOPHYLETIC GROUPS (REQUIRED FOR COLLAPSING)
 
@@ -111,7 +120,7 @@ catyellow("Preparing collapsed tree...")
 cat("\n")
 
 p <- ggtree(groupedTree) + xlim(NA,x_limit)
-p <- collapse_tree(p, monoNodes, nNodes)
+p <- collapse_treeplot(p, monoNodes, nNodes)
 p <- color_branches(p, groupedOTUs, color_vector_groups)
 p <- draw_support_values(p)
 p <- print_tiplabels(p)
@@ -124,8 +133,7 @@ catyellow("Plotting collapsed tree...")
 
 heightCollapsed <- calculateHeightCollapsed(tree, monoNodes)
 
-outfile_collapsed = paste0(outfile,"collapsedTree.pdf")
-cairo_pdf(outfile_collapsed, family="Liberation Sans",height=heightCollapsed)
+cairo_pdf(outfileCol, family="Liberation Sans",height=heightCollapsed)
 p
 invisible(dev.off())
 
@@ -147,8 +155,7 @@ q <- q + theme_tree2()
 
 heightUncollapsed <- calculateHeightUncollapsed(tree)
 
-outfile_uncollapsed = paste0(outfile,"uncollapsedTree.pdf")
-pdf(outfile_uncollapsed,height=heightUncollapsed)
+pdf(outfileUncol,height=heightUncollapsed)
 q
 invisible(dev.off())
 

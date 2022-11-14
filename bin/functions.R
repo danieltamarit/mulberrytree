@@ -136,10 +136,14 @@ readArgs <- function(run) {
    } else {
       outfile <- paste0(outfile,"_")
    }
+   outfileCol <- paste0(outfile,"mulberryCollapsed.pdf")
+   outfileColNxs <- paste0(outfile,"mulberryCollapsed.nxs")
+   outfileUncol <- paste0(outfile,"mulberryUncollapsed.pdf")
 
    catyellow("-Will print to files:")
-   catcyan(paste0(outfile,"collapsedTree.pdf"))
-   catcyan(paste0(outfile,"uncollapsedTree.pdf"))
+   catcyan(outfileCol)
+   catcyan(outfileColNxs)
+   catcyan(outfileUncol)
 
    catyellow("--------------------------------------\n")
 
@@ -153,7 +157,9 @@ readArgs <- function(run) {
       sep=separator,
       suffix=suffix,
       threads=threads,
-      outfile=outfile,
+      outfileCol=outfileCol,
+      outfileColNxs=outfileColNxs,
+      outfileUncol=outfileUncol,
       midpoint=midpoint
    )
    return(paramlist)
@@ -308,7 +314,6 @@ getOffspringLabels <- function(tree, node) {
 
 monophyletic_subgroups <- function(tree, leaves, col_groups,threads) {
 
-#   groupOTUs = list()
    groupMono = data.frame(group=1,node=1,size=1,col=1)
 
    groups <- leaves %>% select(group) %>% unique()
@@ -328,8 +333,45 @@ monophyletic_subgroups <- function(tree, leaves, col_groups,threads) {
    groupMono$node <- as.numeric(groupMono$node)
    groupMono$size <- as.numeric(groupMono$size)
 
-   return_list <- list(groupMono, groupOTUs)
+   outtree <- collapsedGroupsLabels(tree, groupMono)
+
+   return_list <- list(groupMono, groupOTUs, outtree)
    return(return_list)
+}
+
+collapsedGroupsLabels <- function(tree, groupMono) {
+   outtree <- tree
+   if (length(outtree$node.label) > 0) {
+      outtree$node.label <- gsub(
+                              "(.+)",
+                              "[&support=\\1]",
+                              outtree$node.label,
+                              perl=TRUE
+                           )
+      nodesEdit <- groupMono$node-length(outtree$tip.label)
+      # print(nodesEdit)
+      # print$node.label
+      outtree$node.label[nodesEdit] <- gsub(
+                                             "]$",
+                                             ",!collapse={\"collapsed\",0.0},!color=",
+                                             outtree$node.label[nodesEdit],
+                                             perl=TRUE
+                                          )
+      outtree$node.label[nodesEdit] <- paste0(
+                                          outtree$node.label[nodesEdit],
+                                          col2hex(groupMono$col),
+                                          "]"
+                                       )
+      outtree$node.label <- gsub("\\[&support=Root\\]","",outtree$node.label)
+   } else {
+      outtree$node.label[nodesEdit] <- paste0(
+                                          "[!collapse={\"collapsed\",0.0},!color=",
+                                          col2hex(groupMono$col),
+                                          "]"
+                                       )
+   }
+
+   return(outtree)
 }
 
 
@@ -367,7 +409,11 @@ groupAnalysis <- function(group) {
           lab <- getOffspringLabels(tree, node)
           n_group <- lab %>% nrow()
 
-          groupMono <- rbind(groupMono, data.frame(group=g, node=node, size=n_group, col=col_g$col))
+          groupMono <- rbind(
+                         groupMono,
+                         data.frame(group=g, node=node, size=n_group, col=col_g$col)
+                      )
+
           catgreen(paste0("Collapsing ", g, "..."))
        }
        if (result == "present") {
@@ -399,7 +445,7 @@ groupAnalysis <- function(group) {
 
 ###### TREE PLOTTING
 
-collapse_tree <- function(plot, toCollapse, nodesTotal) {
+collapse_treeplot <- function(plot, toCollapse, nodesTotal) {
 
    nodes <- length(toCollapse$node)
 
