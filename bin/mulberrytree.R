@@ -72,8 +72,9 @@ if (length(colorfile) > 0) {
 			show_col_types = FALSE
 		   )
 	cat("\n")
+	col_groups <- col_groups %>%
+		add_row(group="notfound", col="gray15")
 }
-
 
 if ((length(threads)==0) || (threads == "")) {
 	threads <- 1
@@ -104,9 +105,13 @@ groupedOTUs <- objects[[2]]
 outtree <- objects[[3]]
 
 write.nexus(outtree, file=outfileColNxs)
-system(paste0("perl -pe 's/-0.0/,0.0/g; s/-!/,!/g' -i ", outfileColNxs))
-system(paste0("cat ", outfileColNxs, " ", path, "/figtreeblock.txt", " > .mulberrytmp"))
-system(paste0("mv .mulberrytmp ", outfileColNxs))
+system(paste0(
+	"perl -pe 's/-0.0/,0.0/g; s/-!/,!/g; s/-&Name/,&Name/g; s/_-(\\d+)-\"/ ($1)\"/g' -i ", outfileColNxs, "; ",
+	"grep -v R-package ", outfileColNxs, " > .mulberrytmp", ";",
+	"cat .mulberrytmp ", path, "/figtreeblock.txt", " > .mulberrytmp2; ",
+	"mv .mulberrytmp2 ", outfileColNxs, "; ",
+	"rm .mulberrytmp"
+))
 
 ###### GROUP NODES REPRESENTING MONOPHYLETIC GROUPS (REQUIRED FOR COLLAPSING)
 
@@ -121,7 +126,9 @@ cat("\n")
 
 p <- ggtree(groupedTree) + xlim(NA,x_limit)
 p <- collapse_treeplot(p, monoNodes, nNodes)
-p <- color_branches(p, groupedOTUs, color_vector_groups)
+if(length(color_vector_groups)>0) {
+	p <- color_branches(p, groupedOTUs, color_vector_groups)
+}
 p <- draw_support_values(p)
 p <- print_tiplabels(p)
 p <- draw_root(tree, p, root)
@@ -133,7 +140,7 @@ catyellow("Plotting collapsed tree...")
 
 heightCollapsed <- calculateHeightCollapsed(tree, monoNodes)
 
-cairo_pdf(outfileCol, family="Liberation Sans",height=heightCollapsed)
+cairo_pdf(outfileCol, family="Helvetica",height=heightCollapsed)
 p
 invisible(dev.off())
 
@@ -148,7 +155,9 @@ invisible(dev.off())
 catyellow("Plotting uncollapsed tree...")
 
 q <- ggtree(tree) + xlim(NA,x_limit)
-q <- color_branches(q, groupedOTUs, color_vector_groups)
+if(length(color_vector_groups)>0) {
+	q <- color_branches(q, groupedOTUs, color_vector_groups)
+}
 q <- print_support_values(q)
 q <- draw_root(tree, q, root)
 q <- q + theme_tree2()

@@ -320,6 +320,12 @@ monophyletic_subgroups <- function(tree, leaves, col_groups,threads) {
    groups <- groups$group %>% sort()
 
    groupOTUs <- sapply(groups, listGroupOTUs)
+   others <- setdiff(tree$tip.label,leaves$leaves)
+   if(length(others)>0) {
+      otherslist <- list(notfound=others)
+      groupOTUs <- append(groupOTUs,otherslist)
+   }
+
 
    if (threads == 1) {
       groupMono <- lapply(groups, groupAnalysis)
@@ -339,41 +345,6 @@ monophyletic_subgroups <- function(tree, leaves, col_groups,threads) {
    return(return_list)
 }
 
-collapsedGroupsLabels <- function(tree, groupMono) {
-   outtree <- tree
-   if (length(outtree$node.label) > 0) {
-      outtree$node.label <- gsub(
-                              "(.+)",
-                              "[&support=\\1]",
-                              outtree$node.label,
-                              perl=TRUE
-                           )
-      nodesEdit <- groupMono$node-length(outtree$tip.label)
-      # print(nodesEdit)
-      # print$node.label
-      outtree$node.label[nodesEdit] <- gsub(
-                                             "]$",
-                                             ",!collapse={\"collapsed\",0.0},!color=",
-                                             outtree$node.label[nodesEdit],
-                                             perl=TRUE
-                                          )
-      outtree$node.label[nodesEdit] <- paste0(
-                                          outtree$node.label[nodesEdit],
-                                          col2hex(groupMono$col),
-                                          "]"
-                                       )
-      outtree$node.label <- gsub("\\[&support=Root\\]","",outtree$node.label)
-   } else {
-      outtree$node.label[nodesEdit] <- paste0(
-                                          "[!collapse={\"collapsed\",0.0},!color=",
-                                          col2hex(groupMono$col),
-                                          "]"
-                                       )
-   }
-
-   return(outtree)
-}
-
 
 listGroupOTUs <- function(group) {
    g = group
@@ -381,6 +352,66 @@ listGroupOTUs <- function(group) {
    leafNames <- extract_leaves$leaves
 
    return(leafNames)
+}
+
+collapsedGroupsLabels <- function(tree, groupMono) {
+   outtree <- tree
+   nodesEdit <- groupMono$node-length(outtree$tip.label)
+
+   if (length(outtree$node.label) > 0) {
+      if (length(grep("&",outtree$node.label)) == 0) {
+         outtree$node.label <- gsub(
+            "(.+)",
+            "[&support=\\1]",
+            outtree$node.label,
+            perl=TRUE
+         )
+         outtree$node.label <- gsub(
+            "\\[\\[",
+            "[",
+            outtree$node.label
+         )
+         outtree$node.label <- gsub(
+            "\\]\\]",
+            "]",
+            outtree$node.label
+         )
+      }
+
+      outtree$node.label[nodesEdit] <- gsub(
+         "]$",
+         ",!collapse={\"collapsed\",0.0},!color=",
+         outtree$node.label[nodesEdit],
+         perl=TRUE
+      )
+      outtree$node.label[nodesEdit] <- paste0(
+         outtree$node.label[nodesEdit],
+         col2hex(groupMono$col)
+      )
+
+   } else {
+      outtree$node.label[nodesEdit] <- paste0(
+         "[!collapse={\"collapsed\",0.0},!color=",
+         col2hex(groupMono$col)
+      )
+
+   }
+   outtree$node.label[nodesEdit] <- paste0(
+      outtree$node.label[nodesEdit],
+      ",!name=\"",
+      groupMono$group,
+      " (",
+      groupMono$size,
+      ")\"]"
+   )
+
+   outtree$node.label <- gsub(
+      "\\[&support=Root\\]",
+      "",
+      outtree$node.label
+   )
+
+   return(outtree)
 }
 
 
@@ -497,11 +528,17 @@ collapse_treeplot <- function(plot, toCollapse, nodesTotal) {
 
 color_branches <- function(plot, groupedOTUs, color_vector_groups) {
 
+   legendnames <- grep("notfound",names(groupedOTUs),value=TRUE,invert=TRUE)
+
    plot <- groupOTU(plot, groupedOTUs, 'group') +
-        aes(color=group) +
-        scale_color_manual(values=color_vector_groups) +
-        guides(color=guide_legend(ncol=1)) +
-        theme(legend.position="none")
+      aes(color=group) +
+      scale_color_manual(
+         values=color_vector_groups,
+         breaks=legendnames
+      ) +
+   guides(color=guide_legend(ncol=1)) +
+   theme(legend.position="none")
+
    return(plot)
 }
 
@@ -642,13 +679,14 @@ calculateHeightCollapsed <- function(tree, toCollapse) {
    nCollapsedGroups <- nrow(toCollapse)
    uncollapsedLeaves <- nLeaves - sum(toCollapse$size)
 
-   height=3*uncollapsedLeaves/100 + 20*nCollapsedGroups/100
-   height <- max(height,5)
+   height=5*uncollapsedLeaves/100 + 20*nCollapsedGroups/100
+   height <- max(height,3)
    return(height)
 }
 
 calculateHeightUncollapsed <- function(tree) {
    nLeaves <- length(tree$tip.label)
-   height=4*nLeaves/100
+   height=5*nLeaves/100
+   height <- max(height,1)
    return(height)
 }
