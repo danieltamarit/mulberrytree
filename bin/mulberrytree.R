@@ -114,23 +114,19 @@ groupedOTUs <- objects[[2]]
 outtreeCol <- objects[[3]]
 outtreeUncol <- objects[[4]]
 
-
 write.nexus(outtreeCol, file=outfileColNxs)
-system(paste0(
-	"perl -pe 's/-0.0/,0.0/g; s/-!/,!/g; s/_-(\\d+)-\"/ ($1)\"/g' -i ", outfileColNxs, "; ",
-	"grep -v R-package ", outfileColNxs, " > .mulberrytmp", ";",
-	"cat .mulberrytmp ", path, "/figtreeblock.txt", " > .mulberrytmp2; ",
-	"mv .mulberrytmp2 ", outfileColNxs, "; ",
-	"rm .mulberrytmp"
-))
 write.nexus(outtreeUncol, file=outfileUncolNxs)
-system(paste0(
-	"perl -pe 's/-!/,!/g; s/_-(\\d+)-\"/ ($1)\"/g' -i ", outfileUncolNxs, "; ",
-	"grep -v R-package ", outfileUncolNxs, " > .mulberrytmp", ";",
-	"cat .mulberrytmp ", path, "/figtreeblock.txt", " > .mulberrytmp2; ",
-	"mv .mulberrytmp2 ", outfileUncolNxs, "; ",
-	"rm .mulberrytmp"
-))
+for (file in c(outfileColNxs, outfileUncolNxs)) {
+	system(paste0(
+		"perl -pe 's/-0.0/,0.0/g; s/-!/,!/g; s/_-(\\d+)-\"/ ($1)\"/g' -i ", file, "; ",
+		"tmp=$(uuidgen); ",
+		"grep -v R-package ", file, " > .mulberrytmp_\\$tmp", ";",
+		"cat .mulberrytmp_\\$tmp ", path, "/figtreeblock.txt > .mulberrytmp_\\$tmp2; ",
+		"mv .mulberrytmp_\\$tmp2 ", file, "; ",
+		"rm .mulberrytmp_\\$tmp"
+	))
+
+}
 
 ###### GROUP NODES REPRESENTING MONOPHYLETIC GROUPS (REQUIRED FOR COLLAPSING)
 
