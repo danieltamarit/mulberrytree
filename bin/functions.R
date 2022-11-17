@@ -102,16 +102,16 @@ readArgs <- function(run) {
                            groupfile,
                            "\".\n-Separator:"
                         ))
-               cat(paste0("\"",separator,"\"\n"))
+               catcyan(paste0("\"",separator,"\""))
             }
             if (! file.exists(groupfile)) {
                catyellow("-Group interpretation from leaf names.\n-Separator:")
-               cat(paste0("\"",separator,"\"\n"))
+               catcyan(paste0("\"",separator,"\""))
             }
          }
          if (length(groupfile) == 0) {
             catyellow("-Group interpretation from leaf names.\n-Separator:")
-            cat(paste0("\"",separator,"\"\n"))
+            catcyan(paste0("\"",separator,"\""))
          }
       }
    }
@@ -120,11 +120,11 @@ readArgs <- function(run) {
    }
    if (length(suffix) > 0) {
       catyellow("-Suffix to ignore in tree leaf names:")
-      cat(paste0("\"",suffix,"\"\n"))
+      catcyan(paste0("\"",suffix,"\""))
    }
    if (length(threads) > 0) {
       catyellow("-Number of threads:")
-      cat(paste0(threads,"\n"))
+      catcyan(threads)
    }
    if (length(outfile) == 0) {
       outfile <- treefile
@@ -139,11 +139,13 @@ readArgs <- function(run) {
    outfileCol <- paste0(outfile,"mulberryCollapsed.pdf")
    outfileColNxs <- paste0(outfile,"mulberryCollapsed.nxs")
    outfileUncol <- paste0(outfile,"mulberryUncollapsed.pdf")
+   outfileUncolNxs <- paste0(outfile,"mulberryUncollapsed.nxs")
 
    catyellow("-Will print to files:")
    catcyan(outfileCol)
    catcyan(outfileColNxs)
    catcyan(outfileUncol)
+   catcyan(outfileUncolNxs)
 
    catyellow("--------------------------------------\n")
 
@@ -160,6 +162,7 @@ readArgs <- function(run) {
       outfileCol=outfileCol,
       outfileColNxs=outfileColNxs,
       outfileUncol=outfileUncol,
+      outfileUncolNxs=outfileUncolNxs,
       midpoint=midpoint
    )
    return(paramlist)
@@ -312,6 +315,18 @@ getOffspringLabels <- function(tree, node) {
    return(offspring_labels)
 }
 
+getOffspringInternalNodes <- function(node) {
+   treetbl <- tree %>% as_tibble()
+   offspring_nodes <- treetbl %>%
+                           offspring(node) %>%
+                           select(node) %>%
+                           unlist()
+   tips <- lapply(offspring_nodes, isTip, .data=treetbl)
+   offspring_intnodes <- offspring_nodes[! unlist(tips)]
+
+   return(offspring_intnodes)
+}
+
 monophyletic_subgroups <- function(tree, leaves, col_groups,threads) {
 
    groupMono = data.frame(group=1,node=1,size=1,col=1)
@@ -339,9 +354,11 @@ monophyletic_subgroups <- function(tree, leaves, col_groups,threads) {
    groupMono$node <- as.numeric(groupMono$node)
    groupMono$size <- as.numeric(groupMono$size)
 
-   outtree <- collapsedGroupsLabels(tree, groupMono)
+   outtreeCol <- annotateTreeIntNodes(tree, groupMono, 1)
+   outtreeUncol <- annotateTreeIntNodes(tree, groupMono, 0)
 
-   return_list <- list(groupMono, groupOTUs, outtree)
+
+   return_list <- list(groupMono, groupOTUs, outtreeCol, outtreeUncol)
    return(return_list)
 }
 
@@ -354,9 +371,44 @@ listGroupOTUs <- function(group) {
    return(leafNames)
 }
 
-collapsedGroupsLabels <- function(tree, groupMono) {
+annotateTreeIntNodes <- function(tree, groupMono, collapse) {
    outtree <- tree
-   nodesEdit <- groupMono$node-length(outtree$tip.label)
+   nodesEdit <- tibble(node=numeric(),col=character())
+   if (collapse) {
+      nodesEdit <- nodesEdit %>% add_row(
+         node=groupMono$node-length(outtree$tip.label),
+         col=groupMono$col
+      )
+   } else {
+      if (threads == 1) {
+         nodesOffspring <- lapply(
+            groupMono$node,
+            getOffspringInternalNodes
+         )
+      } else {
+         nodesOffspring <- mclapply(
+            groupMono$node,
+            getOffspringInternalNodes,
+            mc.cores=threads
+         )
+      }
+      for(i in 1:length(nodesOffspring)) {
+         addnodes <- tibble(
+            node = nodesOffspring[[i]]-length(outtree$tip.label),
+            col = groupMono[i,"col"]
+         )
+         addnodes <- addnodes %>% add_row(
+            node = groupMono[i,"node"]-length(outtree$tip.label),
+            col = groupMono[i,"col"]
+         )
+         nodesEdit <- nodesEdit %>% add_row(addnodes)
+      }
+   }
+   nodesEditGroup <- tibble(
+      node=groupMono$node-length(outtree$tip.label),
+      col=groupMono$col
+   )
+
 
    if (length(outtree$node.label) > 0) {
       if (length(grep("&",outtree$node.label)) == 0) {
@@ -378,31 +430,50 @@ collapsedGroupsLabels <- function(tree, groupMono) {
          )
       }
 
-      outtree$node.label[nodesEdit] <- gsub(
+      outtree$node.label[nodesEdit$node] <- gsub(
          "]$",
-         ",!collapse={\"collapsed\",0.0},!color=",
-         outtree$node.label[nodesEdit],
+         ",!color=",
+         outtree$node.label[nodesEdit$node],
          perl=TRUE
       )
-      outtree$node.label[nodesEdit] <- paste0(
-         outtree$node.label[nodesEdit],
-         col2hex(groupMono$col)
+      outtree$node.label[nodesEdit$node] <- paste0(
+         outtree$node.label[nodesEdit$node],
+         col2hex(nodesEdit$col)
       )
+
+      if (collapse) {
+         outtree$node.label[nodesEdit$node] <- paste0(
+            outtree$node.label[nodesEdit$node],
+            ",!collapse={\"collapsed\",0.0}"
+         )
+      }
 
    } else {
-      outtree$node.label[nodesEdit] <- paste0(
-         "[!collapse={\"collapsed\",0.0},!color=",
-         col2hex(groupMono$col)
+      outtree$node.label[nodesEdit$node] <- paste0(
+         "[!color=",
+         col2hex(nodesEdit$col)
       )
-
+      if (collapse) {
+         outtree$node.label[nodesEdit$node] <- paste0(
+            outtree$node.label[nodesEdit$node],
+            ",!collapse={\"collapsed\",0.0}",
+         )
+      }
    }
-   outtree$node.label[nodesEdit] <- paste0(
-      outtree$node.label[nodesEdit],
-      ",!name=\"",
+
+
+   outtree$node.label[nodesEditGroup$node] <- paste0(
+      outtree$node.label[nodesEditGroup$node],
+      ",!Name=\"",
       groupMono$group,
       " (",
       groupMono$size,
-      ")\"]"
+      ")\""
+   )
+
+   outtree$node.label[nodesEdit$node] <- paste0(
+      outtree$node.label[nodesEdit$node],
+      "]"
    )
 
    outtree$node.label <- gsub(

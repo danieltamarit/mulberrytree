@@ -5,11 +5,14 @@ start_time <- Sys.time()
 suppressMessages(library(tidyverse))
 suppressMessages(library(ggtree))
 suppressMessages(library(tidytree))
+
+suppressMessages(library(treeio, include.only="isTip"))
 suppressMessages(library(phytools, include.only="midpoint.root"))
 suppressMessages(library(ape, include.only="write.nexus"))
 suppressMessages(library(gplots, include.only="col2hex"))
 
-###### PARAMETERS
+
+###### PARAMETERS AND SOURCE FUNCTIONS
 
 root = 0
 dev=0
@@ -19,14 +22,19 @@ if(dev) {
 	arguments <- list()
 }
 
-##### DATA FILES
-
 run <- commandArgs(trailingOnly=FALSE)
 file <- grep("--file=",run)
 filename <- sub("--file=","",run[file])
 path <- dirname(filename)
 functionsfile <- paste0(path,"/functions.R")
 source(functionsfile)
+
+end_time1 <- Sys.time()
+secs <- as.numeric(end_time1-start_time) %>% round(digits=2)
+catyellow(paste0("Loading time: ",secs, " seconds"))
+
+
+##### DATA FILES
 
 arguments <- readArgs(run)
 
@@ -40,6 +48,7 @@ threads <- arguments$threads
 outfileCol <- arguments$outfileCol
 outfileColNxs <- arguments$outfileColNxs
 outfileUncol <- arguments$outfileUncol
+outfileUncolNxs <- arguments$outfileUncolNxs
 midpoint <- arguments$midpoint
 
 ###### READ DATA
@@ -102,14 +111,24 @@ x_limit <- calculate_x_limit(tree)
 objects <- monophyletic_subgroups(tree, leaves, col_groups, threads)
 monoNodes <- objects[[1]]
 groupedOTUs <- objects[[2]]
-outtree <- objects[[3]]
+outtreeCol <- objects[[3]]
+outtreeUncol <- objects[[4]]
 
-write.nexus(outtree, file=outfileColNxs)
+
+write.nexus(outtreeCol, file=outfileColNxs)
 system(paste0(
-	"perl -pe 's/-0.0/,0.0/g; s/-!/,!/g; s/-&Name/,&Name/g; s/_-(\\d+)-\"/ ($1)\"/g' -i ", outfileColNxs, "; ",
+	"perl -pe 's/-0.0/,0.0/g; s/-!/,!/g; s/_-(\\d+)-\"/ ($1)\"/g' -i ", outfileColNxs, "; ",
 	"grep -v R-package ", outfileColNxs, " > .mulberrytmp", ";",
 	"cat .mulberrytmp ", path, "/figtreeblock.txt", " > .mulberrytmp2; ",
 	"mv .mulberrytmp2 ", outfileColNxs, "; ",
+	"rm .mulberrytmp"
+))
+write.nexus(outtreeUncol, file=outfileUncolNxs)
+system(paste0(
+	"perl -pe 's/-!/,!/g; s/_-(\\d+)-\"/ ($1)\"/g' -i ", outfileUncolNxs, "; ",
+	"grep -v R-package ", outfileUncolNxs, " > .mulberrytmp", ";",
+	"cat .mulberrytmp ", path, "/figtreeblock.txt", " > .mulberrytmp2; ",
+	"mv .mulberrytmp2 ", outfileUncolNxs, "; ",
 	"rm .mulberrytmp"
 ))
 
@@ -119,6 +138,10 @@ groupedTree <- groupClade(tree, monoNodes$node)
 nNodes <- groupedTree$Nnode
 
 ###### CREATE BASE TREE, RESCALE MONOPHYLETIC GROUPS AND PRINT THEM
+
+end_time2 <- Sys.time()
+secs <- as.numeric(end_time2-end_time1) %>% round(digits=2)
+catyellow(paste0("Processing time: ",secs, " seconds"))
 
 cat("\n")
 catyellow("Preparing collapsed tree...")
@@ -167,6 +190,11 @@ heightUncollapsed <- calculateHeightUncollapsed(tree)
 pdf(outfileUncol,height=heightUncollapsed)
 q
 invisible(dev.off())
+
+end_time3 <- Sys.time()
+secs <- as.numeric(end_time3-end_time2) %>% round(digits=2)
+catyellow(paste0("Plotting time: ",secs, " seconds"))
+
 
 end_time <- Sys.time()
 secs <- as.numeric(end_time-start_time) %>% round(digits=2)
