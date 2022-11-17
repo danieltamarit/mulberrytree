@@ -75,7 +75,7 @@ begin figtree;
         set scaleBar.lineWidth=1.0;
         set scaleBar.scaleRange=0.0;
         set tipLabels.colorAttribute="User selection";
-        set tipLabels.displayAttribute="Names";
+        set tipLabels.displayAttribute="Name";
         set tipLabels.fontName="sansserif";
         set tipLabels.fontSize=14;
         set tipLabels.fontStyle=0;

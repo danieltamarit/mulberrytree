@@ -464,7 +464,7 @@ annotateTreeIntNodes <- function(tree, groupMono, collapse) {
 
    outtree$node.label[nodesEditGroup$node] <- paste0(
       outtree$node.label[nodesEditGroup$node],
-      ",!Name=\"",
+      ",!name=\"",
       groupMono$group,
       " (",
       groupMono$size,
