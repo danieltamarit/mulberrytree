@@ -29,7 +29,7 @@ conda activate mulberry
 -m     Midpoint root
 -o     Prefix for output files
 -l     Interpret group name from leaf name
--s     Separator for group interpretation from leaf (default: \"|\")
+-s     Separator for group interpretation from leaf (default: "|")
 -x     Text or regular expression to be ignored as leaf name suffix
 -T     Number of threads used for tree processing (default: 1)
          Note: optimal speed often reached with 1-2 threads
