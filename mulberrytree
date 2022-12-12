@@ -97,13 +97,31 @@ fi
 
 if [[ $OUT ]];
    then COMMAND=$(echo "$COMMAND out=$OUT")
+	OUTPRE=$OUT
+else OUTPRE=$(echo $TREEFILE | perl -pe 's/\.(nwk|tree|treefile|tre)$//')
 fi
+
+OUTSUFCOL=mulberryCollapsed.nxs
+OUTSUFUNCOL=mulberryUncollapsed.nxs
 
 if [[ $MIDPOINT ]];
    then COMMAND=$(echo "$COMMAND midpoint=yes")
+	OUTSUFCOL=mp-$OUTSUFCOL
+	OUTSUFUNCOL=mp-$OUTSUFUNCOL
 fi
 
 $COMMAND
+
+
+for f in $OUTPRE.$OUTSUFCOL $OUTPRE.$OUTSUFUNCOL; do
+    perl -pe 's/-0.0/,0.0/g; s/-!/,!/g; s/_-(\d+)-\"/ ($1)\"/g' -i $f
+    tmp=$(uuidgen)
+    grep -v R-package $f > .mulberrytmp_$tmp
+    cat .mulberrytmp_$tmp $SCRIPTPATH/bin/figtreeblock.txt > .mulberrytmp2_$tmp
+    mv .mulberrytmp2_$tmp $f
+    rm .mulberrytmp_$tmp
+done
+
 
 
 exit 0;

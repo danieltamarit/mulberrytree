@@ -132,9 +132,9 @@ readArgs <- function(run) {
    outfile <- sub(".(nwk|tree|treefile|tre)$","",outfile,perl=TRUE)
 
    if (length(midpoint) > 0) {
-      outfile <- paste0(outfile,"_mp-")
+      outfile <- paste0(outfile,".mp-")
    } else {
-      outfile <- paste0(outfile,"_")
+      outfile <- paste0(outfile,".")
    }
    outfileCol <- paste0(outfile,"mulberryCollapsed.pdf")
    outfileColNxs <- paste0(outfile,"mulberryCollapsed.nxs")

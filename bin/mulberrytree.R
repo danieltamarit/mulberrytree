@@ -116,17 +116,7 @@ outtreeUncol <- objects[[4]]
 
 write.nexus(outtreeCol, file=outfileColNxs)
 write.nexus(outtreeUncol, file=outfileUncolNxs)
-for (file in c(outfileColNxs, outfileUncolNxs)) {
-	system(paste0(
-		"perl -pe 's/-0.0/,0.0/g; s/-!/,!/g; s/_-(\\d+)-\"/ ($1)\"/g' -i ", file, "; ",
-		"tmp=$(uuidgen); ",
-		"grep -v R-package ", file, " > .mulberrytmp_\\$tmp", ";",
-		"cat .mulberrytmp_\\$tmp ", path, "/figtreeblock.txt > .mulberrytmp_\\$tmp2; ",
-		"mv .mulberrytmp_\\$tmp2 ", file, "; ",
-		"rm .mulberrytmp_\\$tmp"
-	))
 
-}
 
 ###### GROUP NODES REPRESENTING MONOPHYLETIC GROUPS (REQUIRED FOR COLLAPSING)
 
