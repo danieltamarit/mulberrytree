@@ -183,7 +183,7 @@ catyellow(paste0("Plotting time: ",secs, " seconds"))
 
 
 end_time <- Sys.time()
-secs <- as.numeric(end_time-start_time) %>% round(digits=2)
+secs <- as.numeric(end_time-start_time,units="secs") %>% round(digits=2)
 mins <- as.numeric(end_time-start_time,units="mins") %>% round(digits=2)
 
 cat("\n")
