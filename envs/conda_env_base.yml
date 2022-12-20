@@ -77,12 +77,15 @@ dependencies:
   - pixman=0.40.0=h36c2ea0_0
   - pthread-stubs=0.4=h36c2ea0_1001
   - python=3.10.6=ha86cf86_0_cpython
+  - r-ape
   - r-base=4.2.1=h7880091_2
   - r-biocmanager
   - r-tidytree
   - r-tidyverse
   - r-phytools
+  - r-gplots
   - bioconductor-ggtree
+  - bioconductor-treeio
   - readline=8.1.2=h7f8727e_1
   - sed=4.8=he412f7d_0
   - sqlite=3.39.3=h5082296_0
