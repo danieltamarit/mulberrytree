@@ -456,7 +456,7 @@ annotateTreeIntNodes <- function(tree, groupMono, collapse) {
       if (collapse) {
          outtree$node.label[nodesEdit$node] <- paste0(
             outtree$node.label[nodesEdit$node],
-            ",!collapse={\"collapsed\",0.0}",
+            ",!collapse={\"collapsed\",0.0}"
          )
       }
    }
