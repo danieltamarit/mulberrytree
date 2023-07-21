@@ -1,5 +1,3 @@
-#!/usr/bin/bash
-
 function echoy
 {
    COL='\033[0;33m'; NC='\033[0m'; echo -e "${COL}$@${NC}";

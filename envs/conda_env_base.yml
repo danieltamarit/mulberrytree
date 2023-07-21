@@ -80,7 +80,7 @@ dependencies:
   - r-ape
   - r-base=4.2.1=h7880091_2
   - r-biocmanager
-  - r-tidytree
+  - r-tidytree=0.4.2
   - r-tidyverse
   - r-phytools
   - r-gplots
