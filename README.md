@@ -51,4 +51,4 @@ mulberrytree -t example/a_treeSimple3.nwk -l -s "___"
 
 
 
-The name "mulberrytree" is a homage to figtree, a software I have used too many hours of my life using, and for which I often hoped I could have a less manual equivalent.
+The name "mulberrytree" is a wink to figtree, a great, interactive visualisation software I have spent too many hours of my life using, and for which I often hoped a less manual equivalent existed.
