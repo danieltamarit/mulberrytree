@@ -50,6 +50,9 @@ outfileColNxs <- arguments$outfileColNxs
 outfileUncol <- arguments$outfileUncol
 outfileUncolNxs <- arguments$outfileUncolNxs
 midpoint <- arguments$midpoint
+widthParam <- ifelse(length(arguments$width) > 0, arguments$width, 7)
+widthParamCol <- as.numeric(arguments$widthCol)
+widthParamUncol <- as.numeric(arguments$widthUncol)
 
 ###### READ DATA
 
@@ -142,6 +145,7 @@ if(length(color_vector_groups)>0) {
 p <- draw_support_values(p)
 p <- print_tiplabels(p)
 p <- draw_root(tree, p, root)
+#p <- p + theme_tree2(legend.position="bottom") + guides(color="none")
 p <- p + theme_tree2() + guides(color="none")
 
 
@@ -149,8 +153,10 @@ p <- p + theme_tree2() + guides(color="none")
 catyellow("Plotting collapsed tree...")
 
 heightCollapsed <- calculateHeightCollapsed(tree, monoNodes)
+widthCol <- ifelse(length(widthParamCol) > 0, widthParamCol, widthParam)
 
-cairo_pdf(outfileCol, family="Helvetica",height=heightCollapsed)
+
+cairo_pdf(outfileCol, family="Helvetica",height=heightCollapsed,width=widthCol)
 p
 invisible(dev.off())
 
@@ -173,8 +179,9 @@ q <- draw_root(tree, q, root)
 q <- q + theme_tree2()
 
 heightUncollapsed <- calculateHeightUncollapsed(tree)
+widthUncol <- ifelse(length(widthParamUncol) > 0, widthParamUncol, widthParam)
 
-pdf(outfileUncol,height=heightUncollapsed)
+pdf(outfileUncol,height=heightUncollapsed,width=widthUncol)
 q
 invisible(dev.off())
 

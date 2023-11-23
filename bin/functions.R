@@ -17,6 +17,9 @@ readArgs <- function(run) {
                         "^threads=",
                         "^out=",
                         "^midpoint=",
+                        "^width=",
+                        "^widthCol=",
+                        "^widthUncol=",
                         sep="|"
                         ),
                         args, invert=TRUE
@@ -80,6 +83,17 @@ readArgs <- function(run) {
    outfile <- ""
    outfile <- unlist(strsplit( args[ outfile_arg ], "="))[2]
 
+   width_arg <- grep("^width=", args)
+   widthParam <- ""
+   widthParam <- unlist(strsplit( args[ width_arg ], "="))[2]
+
+   widthCol_arg <- grep("^widthCol=", args)
+   widthColParam <- ""
+   widthColParam <- unlist(strsplit( args[ widthCol_arg ], "="))[2]
+
+   widthUncol_arg <- grep("^widthUncol=", args)
+   widthUncolParam <- ""
+   widthUncolParam <- unlist(strsplit( args[ widthUncol_arg ], "="))[2]
 
    catyellow("\nmulberrytree will use the following information:")
    catyellow("---------------------------------------")
@@ -126,6 +140,22 @@ readArgs <- function(run) {
       catyellow("-Number of threads:")
       catcyan(threads)
    }
+
+   if (length(widthParam) > 0) {
+      catyellow("-Tree PDF width:")
+      catcyan(widthParam)
+   }
+
+   if (length(widthColParam) > 0) {
+      catyellow("-Collapsed tree PDF width:")
+      catcyan(widthColParam)
+   }
+
+   if (length(widthUncolParam) > 0) {
+      catyellow("-Uncollapsed PDF width:")
+      catcyan(widthUncolParam)
+   }
+
    if (length(outfile) == 0) {
       outfile <- treefile
    }
@@ -163,7 +193,10 @@ readArgs <- function(run) {
       outfileColNxs=outfileColNxs,
       outfileUncol=outfileUncol,
       outfileUncolNxs=outfileUncolNxs,
-      midpoint=midpoint
+      midpoint=midpoint,
+      width=widthParam,
+      widthCol=widthColParam,
+      widthUncol=widthUncolParam
    )
    return(paramlist)
 }

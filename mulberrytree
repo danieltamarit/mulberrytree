@@ -19,6 +19,9 @@ function Help
             (Column 1: Group name; Column 2: R-readable color)
    -m     Midpoint root
    -o     Prefix for output files
+   -w     Width for collapsed and uncollapsed PDF
+   --wc   Width for collapsed PDF
+   --wu   Width for uncollapsed PDF
    -l     Interpret group name from leaf name
    -s     Separator for group interpretation from leaf (default: \"|\")
    -x     Text or regular expression to be ignored as leaf name suffix
@@ -29,7 +32,7 @@ function Help
 }
 
 
-while getopts ":ht:g:c:ls:x:T:o:m" option; do
+while getopts ":ht:g:c:ls:x:T:o:m:w:W:Y" option; do
    case $option in
       h) #Display Help
          Help
@@ -52,6 +55,12 @@ while getopts ":ht:g:c:ls:x:T:o:m" option; do
          OUT=$OPTARG;;
       m) # Midpoint root
          MIDPOINT=1;;
+      w) # Width for Collapsed and Uncollapsed PDF
+         WIDTH=$OPTARG;;
+      W) # Width for Collapsed PDF
+         WIDTHCOL=$OPTARG;;
+      Y) # Width for Collapsed PDF
+         WIDTHUNCOL=$OPTARG;;
       \?) # Invalid option
          echo "Invalid option: -$OPTARG"
          exit 1
@@ -91,6 +100,18 @@ fi
 
 if [[ $THREADS ]];
    then COMMAND=$(echo "$COMMAND threads=$THREADS")
+fi
+
+if [[ $WIDTH ]];
+   then COMMAND=$(echo "$COMMAND width=$WIDTH"),
+fi
+
+if [[ $WIDTHCOL ]];
+   then COMMAND=$(echo "$COMMAND widthCol=$WIDTHCOL")
+fi
+
+if [[ $WIDTHUNCOL ]];
+   then COMMAND=$(echo "$COMMAND widthUncol=$WIDTHUNCOL")
 fi
 
 if [[ $OUT ]];
