@@ -256,7 +256,7 @@ taxaFromNames <- function(tree,taxa,separator,suffix) {
 calculate_x_limit <- function(tree) {
 
    t <- ggtree(tree)
-   x_limit <- t$data %>% filter(isTip == TRUE) %>% select(x) %>% max()
+   x_limit <- t$data %>% as_tibble() %>% filter(isTip == TRUE) %>% select(x) %>% max()
    x_limit = x_limit + x_limit/3
    return(x_limit)
 }
@@ -265,6 +265,7 @@ checkMono <- function(tree, leaves, node, group) {
 
    offspring_leaves <- getOffspringLabels(tree,node)
    offspring_groups <- leaves %>%
+   		       	   as_tibble() %>%
                            filter(leaves %in% offspring_leaves$label) %>%
                            select(group) %>%
                            unique()
@@ -331,7 +332,7 @@ monophyletic_subgroups <- function(tree, leaves, col_groups,threads) {
 
    groupMono = data.frame(group=1,node=1,size=1,col=1)
 
-   groups <- leaves %>% select(group) %>% unique()
+   groups <- leaves %>% as_tibble() %>% select(group) %>% unique()
    groups <- groups$group %>% sort()
 
    groupOTUs <- sapply(groups, listGroupOTUs)
@@ -488,9 +489,9 @@ annotateTreeIntNodes <- function(tree, groupMono, collapse) {
 
 groupAnalysis <- function(group) {
     g <- group
-    extract_leaves <- leaves %>% filter(group == g) %>% select(leaves)
+    extract_leaves <- leaves %>% as_tibble() %>% filter(group == g) %>% select(leaves)
     leafNames <- extract_leaves$leaves
-    col_g <- col_groups %>% filter(group==g) %>% select(col)
+    col_g <- col_groups %>% as_tibble() %>% filter(group==g) %>% select(col)
     if (nrow(col_g) == 0) {
        col_g <- tibble(group=g, col="black")
     }

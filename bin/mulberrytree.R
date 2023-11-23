@@ -2,14 +2,14 @@
 
 start_time <- Sys.time()
 
-suppressMessages(library(tidyverse))
-suppressMessages(library(ggtree))
-suppressMessages(library(tidytree))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(ggtree))
+suppressPackageStartupMessages(library(tidytree))
 
-suppressMessages(library(treeio, include.only="isTip"))
-suppressMessages(library(phytools, include.only="midpoint.root"))
-suppressMessages(library(ape, include.only="write.nexus"))
-suppressMessages(library(gplots, include.only="col2hex"))
+suppressPackageStartupMessages(library(treeio, include.only="isTip"))
+suppressPackageStartupMessages(library(phytools, include.only="midpoint.root"))
+suppressPackageStartupMessages(library(ape, include.only="write.nexus"))
+suppressPackageStartupMessages(library(gplots, include.only="col2hex"))
 
 
 ###### PARAMETERS AND SOURCE FUNCTIONS
@@ -77,6 +77,7 @@ if (length(colorfile) > 0) {
 	catyellow("Reading taxon colors file...")
 	col_groups <- read_tsv(
 			colorfile,
+			col_select = c(1,2),
 			col_names = c("group", "col"),
 			show_col_types = FALSE
 		   )
