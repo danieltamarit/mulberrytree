@@ -20,12 +20,14 @@ readArgs <- function(run) {
                         "^width=",
                         "^widthCol=",
                         "^widthUncol=",
+                        "^ignorePrefix=",
                         sep="|"
                         ),
                         args, invert=TRUE
                      )
    if (length(do_not_match) > 0) {
       catyellow("#####################################################\n")
+
       catyellow(
          paste(
              "\nCould not understand the following arguments:\n", paste(args[do_not_match],collapse="\n"),
@@ -74,6 +76,10 @@ readArgs <- function(run) {
    suffix_arg <- grep("^suffix=", args)
    suffix <- ""
    suffix <- unlist(strsplit( args[ suffix_arg ], "="))[2]
+
+   ignorePrefix_arg <- grep("^ignorePrefix=", args)
+   ignorePrefix <- ""
+   ignorePrefix <- unlist(strsplit( args[ ignorePrefix_arg ], "="))[2]
 
    threads_arg <- grep("^threads=", args)
    threads <- ""
@@ -136,6 +142,10 @@ readArgs <- function(run) {
       catyellow("-Suffix to ignore in tree leaf names:")
       catcyan(paste0("\"",suffix,"\""))
    }
+   if (length(ignorePrefix) > 0) {
+      catyellow("-Labels with the following prefix will be ignored:")
+      catcyan(ignorePrefix)
+   }
    if (length(threads) > 0) {
       catyellow("-Number of threads:")
       catcyan(threads)
@@ -189,6 +199,7 @@ readArgs <- function(run) {
       sep=separator,
       suffix=suffix,
       threads=threads,
+      ignorePrefix=ignorePrefix,
       outfileCol=outfileCol,
       outfileColNxs=outfileColNxs,
       outfileUncol=outfileUncol,
@@ -298,10 +309,19 @@ checkMono <- function(tree, leaves, node, group) {
 
    offspring_leaves <- getOffspringLabels(tree,node)
    offspring_groups <- leaves %>%
-   		       	   as_tibble() %>%
-                           filter(leaves %in% offspring_leaves$label) %>%
-                           select(group) %>%
-                           unique()
+   		       	         as_tibble() %>%
+                       filter(leaves %in% offspring_leaves$label) %>%
+                       select(group) %>%
+                       unique()
+   if(length(ignorePrefix) > 0) {
+      offspring_groups <- offspring_groups %>%
+                          filter(str_detect(
+                            paste0("^",ignorePrefix),
+                            group,
+                            negate=TRUE
+                          ))
+   }
+
    isGroup <- ifelse(length(offspring_leaves$label) >1, "TRUE", "FALSE")
    present <- ifelse(group %in% offspring_groups$group, "TRUE", "FALSE")
    monophyl <- ifelse(length(offspring_groups$group) == 1, "TRUE", "FALSE")

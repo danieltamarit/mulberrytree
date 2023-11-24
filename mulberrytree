@@ -20,11 +20,13 @@ function Help
    -m     Midpoint root
    -o     Prefix for output files
    -w     Width for collapsed and uncollapsed PDF
-   --wc   Width for collapsed PDF
-   --wu   Width for uncollapsed PDF
+   -W     Width for collapsed PDF
+   -Y     Width for uncollapsed PDF
    -l     Interpret group name from leaf name
    -s     Separator for group interpretation from leaf (default: \"|\")
    -x     Text or regular expression to be ignored as leaf name suffix
+   -i     Text or regular expression to be ignored as leaf name prefix
+            when assessing group monophyly
    -T     Number of threads used for tree processing (default: 1)
             Note: optimal speed often reached with 1-2 threads
 
@@ -32,7 +34,7 @@ function Help
 }
 
 
-while getopts ":ht:g:c:ls:x:T:o:m:w:W:Y" option; do
+while getopts ":ht:g:c:ls:x:T:i:o:m:w:W:Y" option; do
    case $option in
       h) #Display Help
          Help
@@ -49,6 +51,8 @@ while getopts ":ht:g:c:ls:x:T:o:m:w:W:Y" option; do
          SEPARATOR=$OPTARG;;
       x) # Suffix to be ignored in leaf names
          SUFFIX=$OPTARG;;
+      i) # Ignore labels that start with prefix
+         PREFIX=$OPTARG;;
       T) # Number of threads
          THREADS=$OPTARG;;
       o) # Output file prefix
@@ -98,6 +102,10 @@ if [[ $SUFFIX ]];
    then COMMAND=$(echo "$COMMAND suffix=$SUFFIX")
 fi
 
+if [[ $PREFIX ]];
+   then COMMAND=$(echo "$COMMAND ignorePrefix=$PREFIX")
+fi
+
 if [[ $THREADS ]];
    then COMMAND=$(echo "$COMMAND threads=$THREADS")
 fi
@@ -128,6 +136,7 @@ if [[ $MIDPOINT ]];
 	OUTSUFCOL=mp-$OUTSUFCOL
 	OUTSUFUNCOL=mp-$OUTSUFUNCOL
 fi
+
 
 $COMMAND
 

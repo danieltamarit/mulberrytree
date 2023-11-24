@@ -44,6 +44,7 @@ colorfile <- arguments$color
 groupFromNames <- arguments$groupFromName
 separator <- arguments$sep
 suffix <- arguments$suffix
+ignorePrefix <- arguments$ignorePrefix
 threads <- arguments$threads
 outfileCol <- arguments$outfileCol
 outfileColNxs <- arguments$outfileColNxs
@@ -53,6 +54,7 @@ midpoint <- arguments$midpoint
 widthParam <- ifelse(length(arguments$width) > 0, arguments$width, 7)
 widthParamCol <- as.numeric(arguments$widthCol)
 widthParamUncol <- as.numeric(arguments$widthUncol)
+
 
 ###### READ DATA
 
