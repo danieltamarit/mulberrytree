@@ -147,8 +147,8 @@ if(length(color_vector_groups)>0) {
 p <- draw_support_values(p)
 p <- print_tiplabels(p)
 p <- draw_root(tree, p, root)
-#p <- p + theme_tree2(legend.position="bottom") + guides(color="none")
-p <- p + theme_tree2() + guides(color="none")
+p <- p + theme_tree2(legend.position="bottom") + guides(color="none")
+#p <- p + theme_tree2() + guides(color="none")
 
 
 ###### PRINT
@@ -178,7 +178,8 @@ if(length(color_vector_groups)>0) {
 }
 q <- print_support_values(q)
 q <- draw_root(tree, q, root)
-q <- q + theme_tree2()
+#q <- q + theme_tree2()
+q <- q + theme_tree2(legend.position="bottom")
 
 heightUncollapsed <- calculateHeightUncollapsed(tree)
 widthUncol <- ifelse(length(widthParamUncol) > 0, widthParamUncol, widthParam)
