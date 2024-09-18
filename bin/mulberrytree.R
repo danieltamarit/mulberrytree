@@ -2,14 +2,14 @@
 
 start_time <- Sys.time()
 
-suppressMessages(library(tidyverse))
-suppressMessages(library(ggtree))
-suppressMessages(library(tidytree))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(ggtree))
+suppressPackageStartupMessages(library(tidytree))
 
-suppressMessages(library(treeio, include.only="isTip"))
-suppressMessages(library(phytools, include.only="midpoint.root"))
-suppressMessages(library(ape, include.only="write.nexus"))
-suppressMessages(library(gplots, include.only="col2hex"))
+suppressPackageStartupMessages(library(treeio, include.only="isTip"))
+suppressPackageStartupMessages(library(phytools, include.only="midpoint.root"))
+suppressPackageStartupMessages(library(ape, include.only="write.nexus"))
+suppressPackageStartupMessages(library(gplots, include.only="col2hex"))
 
 
 ###### PARAMETERS AND SOURCE FUNCTIONS
@@ -44,12 +44,17 @@ colorfile <- arguments$color
 groupFromNames <- arguments$groupFromName
 separator <- arguments$sep
 suffix <- arguments$suffix
+ignorePrefix <- arguments$ignorePrefix
 threads <- arguments$threads
 outfileCol <- arguments$outfileCol
 outfileColNxs <- arguments$outfileColNxs
 outfileUncol <- arguments$outfileUncol
 outfileUncolNxs <- arguments$outfileUncolNxs
 midpoint <- arguments$midpoint
+widthParam <- ifelse(length(arguments$width) > 0, arguments$width, 7)
+widthParamCol <- as.numeric(arguments$widthCol)
+widthParamUncol <- as.numeric(arguments$widthUncol)
+
 
 ###### READ DATA
 
@@ -77,6 +82,7 @@ if (length(colorfile) > 0) {
 	catyellow("Reading taxon colors file...")
 	col_groups <- read_tsv(
 			colorfile,
+			col_select = c(1,2),
 			col_names = c("group", "col"),
 			show_col_types = FALSE
 		   )
@@ -141,15 +147,18 @@ if(length(color_vector_groups)>0) {
 p <- draw_support_values(p)
 p <- print_tiplabels(p)
 p <- draw_root(tree, p, root)
-p <- p + theme_tree2() + guides(color="none")
+p <- p + theme_tree2(legend.position="bottom") + guides(color="none")
+#p <- p + theme_tree2() + guides(color="none")
 
 
 ###### PRINT
 catyellow("Plotting collapsed tree...")
 
 heightCollapsed <- calculateHeightCollapsed(tree, monoNodes)
+widthCol <- ifelse(length(widthParamCol) > 0, widthParamCol, widthParam)
 
-cairo_pdf(outfileCol, family="Helvetica",height=heightCollapsed)
+
+cairo_pdf(outfileCol, family="Helvetica",height=heightCollapsed,width=widthCol)
 p
 invisible(dev.off())
 
@@ -169,11 +178,13 @@ if(length(color_vector_groups)>0) {
 }
 q <- print_support_values(q)
 q <- draw_root(tree, q, root)
-q <- q + theme_tree2()
+#q <- q + theme_tree2()
+q <- q + theme_tree2(legend.position="bottom")
 
 heightUncollapsed <- calculateHeightUncollapsed(tree)
+widthUncol <- ifelse(length(widthParamUncol) > 0, widthParamUncol, widthParam)
 
-pdf(outfileUncol,height=heightUncollapsed)
+pdf(outfileUncol,height=heightUncollapsed,width=widthUncol)
 q
 invisible(dev.off())
 

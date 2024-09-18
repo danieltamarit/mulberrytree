@@ -17,12 +17,17 @@ readArgs <- function(run) {
                         "^threads=",
                         "^out=",
                         "^midpoint=",
+                        "^width=",
+                        "^widthCol=",
+                        "^widthUncol=",
+                        "^ignorePrefix=",
                         sep="|"
                         ),
                         args, invert=TRUE
                      )
    if (length(do_not_match) > 0) {
       catyellow("#####################################################\n")
+
       catyellow(
          paste(
              "\nCould not understand the following arguments:\n", paste(args[do_not_match],collapse="\n"),
@@ -72,6 +77,10 @@ readArgs <- function(run) {
    suffix <- ""
    suffix <- unlist(strsplit( args[ suffix_arg ], "="))[2]
 
+   ignorePrefix_arg <- grep("^ignorePrefix=", args)
+   ignorePrefix <- ""
+   ignorePrefix <- unlist(strsplit( args[ ignorePrefix_arg ], "="))[2]
+
    threads_arg <- grep("^threads=", args)
    threads <- ""
    threads <- unlist(strsplit( args[ threads_arg ], "="))[2]
@@ -80,6 +89,17 @@ readArgs <- function(run) {
    outfile <- ""
    outfile <- unlist(strsplit( args[ outfile_arg ], "="))[2]
 
+   width_arg <- grep("^width=", args)
+   widthParam <- ""
+   widthParam <- unlist(strsplit( args[ width_arg ], "="))[2]
+
+   widthCol_arg <- grep("^widthCol=", args)
+   widthColParam <- ""
+   widthColParam <- unlist(strsplit( args[ widthCol_arg ], "="))[2]
+
+   widthUncol_arg <- grep("^widthUncol=", args)
+   widthUncolParam <- ""
+   widthUncolParam <- unlist(strsplit( args[ widthUncol_arg ], "="))[2]
 
    catyellow("\nmulberrytree will use the following information:")
    catyellow("---------------------------------------")
@@ -122,10 +142,30 @@ readArgs <- function(run) {
       catyellow("-Suffix to ignore in tree leaf names:")
       catcyan(paste0("\"",suffix,"\""))
    }
+   if (length(ignorePrefix) > 0) {
+      catyellow("-Labels with the following prefix will be ignored:")
+      catcyan(ignorePrefix)
+   }
    if (length(threads) > 0) {
       catyellow("-Number of threads:")
       catcyan(threads)
    }
+
+   if (length(widthParam) > 0) {
+      catyellow("-Tree PDF width:")
+      catcyan(widthParam)
+   }
+
+   if (length(widthColParam) > 0) {
+      catyellow("-Collapsed tree PDF width:")
+      catcyan(widthColParam)
+   }
+
+   if (length(widthUncolParam) > 0) {
+      catyellow("-Uncollapsed PDF width:")
+      catcyan(widthUncolParam)
+   }
+
    if (length(outfile) == 0) {
       outfile <- treefile
    }
@@ -159,11 +199,15 @@ readArgs <- function(run) {
       sep=separator,
       suffix=suffix,
       threads=threads,
+      ignorePrefix=ignorePrefix,
       outfileCol=outfileCol,
       outfileColNxs=outfileColNxs,
       outfileUncol=outfileUncol,
       outfileUncolNxs=outfileUncolNxs,
-      midpoint=midpoint
+      midpoint=midpoint,
+      width=widthParam,
+      widthCol=widthColParam,
+      widthUncol=widthUncolParam
    )
    return(paramlist)
 }
@@ -256,7 +300,7 @@ taxaFromNames <- function(tree,taxa,separator,suffix) {
 calculate_x_limit <- function(tree) {
 
    t <- ggtree(tree)
-   x_limit <- t$data %>% filter(isTip == TRUE) %>% select(x) %>% max()
+   x_limit <- t$data %>% as_tibble() %>% filter(isTip == TRUE) %>% select(x) %>% max()
    x_limit = x_limit + x_limit/3
    return(x_limit)
 }
@@ -265,9 +309,19 @@ checkMono <- function(tree, leaves, node, group) {
 
    offspring_leaves <- getOffspringLabels(tree,node)
    offspring_groups <- leaves %>%
-                           filter(leaves %in% offspring_leaves$label) %>%
-                           select(group) %>%
-                           unique()
+   		       	         as_tibble() %>%
+                       filter(leaves %in% offspring_leaves$label) %>%
+                       select(group) %>%
+                       unique()
+   if(length(ignorePrefix) > 0) {
+      offspring_groups <- offspring_groups %>%
+                          filter(str_detect(
+                            paste0("^",ignorePrefix),
+                            group,
+                            negate=TRUE
+                          ))
+   }
+
    isGroup <- ifelse(length(offspring_leaves$label) >1, "TRUE", "FALSE")
    present <- ifelse(group %in% offspring_groups$group, "TRUE", "FALSE")
    monophyl <- ifelse(length(offspring_groups$group) == 1, "TRUE", "FALSE")
@@ -331,7 +385,7 @@ monophyletic_subgroups <- function(tree, leaves, col_groups,threads) {
 
    groupMono = data.frame(group=1,node=1,size=1,col=1)
 
-   groups <- leaves %>% select(group) %>% unique()
+   groups <- leaves %>% as_tibble() %>% select(group) %>% unique()
    groups <- groups$group %>% sort()
 
    groupOTUs <- sapply(groups, listGroupOTUs)
@@ -488,9 +542,9 @@ annotateTreeIntNodes <- function(tree, groupMono, collapse) {
 
 groupAnalysis <- function(group) {
     g <- group
-    extract_leaves <- leaves %>% filter(group == g) %>% select(leaves)
+    extract_leaves <- leaves %>% as_tibble() %>% filter(group == g) %>% select(leaves)
     leafNames <- extract_leaves$leaves
-    col_g <- col_groups %>% filter(group==g) %>% select(col)
+    col_g <- col_groups %>% as_tibble() %>% filter(group==g) %>% select(col)
     if (nrow(col_g) == 0) {
        col_g <- tibble(group=g, col="black")
     }
