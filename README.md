@@ -2,7 +2,7 @@
 
 ![Mulberry tree painting by Van Gogh](https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/The_Mulberry_Tree_by_Vincent_van_Gogh.jpg/291px-The_Mulberry_Tree_by_Vincent_van_Gogh.jpg)
 
-Produce publication-quality figures from Newick tree files, collapsing user-defined groups of leaves.
+This script produces publication-quality figures from Newick tree files, collapsing user-defined groups of leaves.
 
 
 ### Install dependencies
