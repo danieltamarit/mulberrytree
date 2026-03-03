@@ -2,6 +2,7 @@
 
 start_time <- Sys.time()
 
+
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggtree))
 suppressPackageStartupMessages(library(tidytree))
@@ -60,6 +61,8 @@ widthParamUncol <- as.numeric(arguments$widthUncol)
 
 catyellow("Reading tree file...")
 tree <- read.tree(treefile)
+tree <- cleanTree(tree)
+
 if (length(midpoint) > 0) {
 	tree <- midpoint.root(tree)
 }
@@ -68,6 +71,7 @@ taxaFromFile <- tibble()
 if ((length(taxafile) > 0) && (file.exists(taxafile))) {
 	catyellow("Reading taxon names file...")
 	taxaFromFile <- read_tsv(taxafile,col_names=c("name","group"),show_col_types = FALSE)
+	taxaFromFile <- cleanNames(taxaFromFile)
 }
 taxa <- tibble()
 if (length(taxaFromFile) > 0) {

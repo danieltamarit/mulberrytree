@@ -239,6 +239,19 @@ catmagenta <- function(text) {
 
 ###### TREE PROCESSING
 
+cleanNames <- function(group_df) {
+  gdf <- group_df
+  gdf <- gsub("'","",gdf)
+  return(gdf)
+}
+
+cleanTree <- function(tree) {
+  t <- tree
+  t$tip.label <- gsub("'","",tree$tip.label)
+  t$node.label <- gsub("/.*", "", tree$node.label)
+  return(t)
+}
+
 getLeafNames <- function(tree, taxa, suffix) {
    full_names <- tibble(
    						leaves=tree$tip.label,
@@ -313,7 +326,7 @@ checkMono <- function(tree, leaves, node, group) {
                        filter(leaves %in% offspring_leaves$label) %>%
                        select(group) %>%
                        unique()
-   if(length(ignorePrefix) > 0) {
+   if(exists("ignorePrefix")) {
       offspring_groups <- offspring_groups %>%
                           filter(str_detect(
                             paste0("^",ignorePrefix),
@@ -558,7 +571,7 @@ groupAnalysis <- function(group) {
 
     if (length(leafNames) > 1) {
 
-       node <- MRCA(tree, leafNames)
+       node <- suppressWarnings(MRCA(tree, leafNames))
 
        result <- checkMono(tree, leaves, node, g)
        if (result == "monophyletic") {
