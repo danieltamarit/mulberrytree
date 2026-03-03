@@ -4,8 +4,8 @@ channels:
   - bioconda
 dependencies:
   - python=3.10
+  - r-base=4.3.*
   - r-ape
-  - r-base=4.2
   - r-biocmanager
   - r-tidytree
   - r-tidyverse
