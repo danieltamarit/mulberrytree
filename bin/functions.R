@@ -241,7 +241,7 @@ catmagenta <- function(text) {
 
 cleanNames <- function(group_df) {
   gdf <- group_df
-  gdf <- gsub("'","",gdf)
+  gdf$group <- gsub("'","",gdf$group)
   return(gdf)
 }
 
