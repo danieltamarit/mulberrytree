@@ -614,47 +614,49 @@ groupAnalysis <- function(group) {
 
 ###### TREE PLOTTING
 
-collapse_treeplot <- function(plot, toCollapse, nodesTotal) {
+collapse_treeplot <- function(plot, monoNodes, nodesTotal) {
 
+   toCollapse <- distinct(monoNodes)
    nodes <- length(toCollapse$node)
 
-   for (i in 1:nodes) {
-      size <- toCollapse[i,"size"]
-      plot <- scaleClade(
-         plot,
-         node=toCollapse[i,"node"],
-         scale=2/size
+   label_df <- data.frame(
+     node = toCollapse$node,
+     lab  = paste0(toCollapse$group, " (", toCollapse$size, ")"),
+     col  = toCollapse$col
+   )
+
+   for (i in seq_len(nrow(toCollapse))) {
+
+     plot <- collapse(
+       plot,
+       node = toCollapse$node[i],
+       mode = "mixed",
+       fill = toCollapse$col[i],
+       col  = "black"
+     )
+   }
+
+   for (i in seq_len(nrow(toCollapse))) {
+
+
+     node  <- toCollapse$node[i]
+     group <- toCollapse$group[i]
+     size  <- toCollapse$size[i]
+     col   <- toCollapse$col[i]
+     label <- paste0(group, " (", size, ")")
+
+     plot <- plot +
+       geom_cladelab(
+        node  = node,
+        label = label,
+        fontsize = 3,
+        barsize  = 0,
+        barcolour = "white",
+        textcolour = col
       )
    }
-   for (i in 1:nodes) {
-       g <- toCollapse[i,"group"]
-       n <- toCollapse[i,"node"]
-       s <- toCollapse[i,"size"]
-       col <- toCollapse[i,"col"]
-       label = paste0(g, " (", s, ")")
 
-       d <- data.frame(node=n, name=g, col=col,lab=label)
-
-       plot <- plot + geom_cladelab(
-         data=d,
-         mapping=aes(
-   	       node=node,
-   	       label=lab,
-   	    ),
-         fontsize=3,
-         textcolour=col,
-         barsize=0,
-         barcolour="white"
-       )
-       plot <-  plot %>%
-               collapse(
-                     node=n,
-                     'mixed',
-                     fill=col,
-                     col="black"
-                  )
-       plot <- plot + theme(legend.position="none")
-   }
+   plot <- plot + theme(legend.position="none")
 
    ##### Suppresing warnings due to unclear warning message:
    ##### Removed x rows containing missing values (geom_point_g_gtree).
