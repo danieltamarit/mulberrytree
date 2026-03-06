@@ -617,21 +617,15 @@ groupAnalysis <- function(group) {
 collapse_treeplot <- function(plot, monoNodes, leavesTotal) {
 
    toCollapse <- distinct(monoNodes)
-   nodes <- length(toCollapse$node)
 
-   label_df <- data.frame(
-     node = toCollapse$node,
-     lab  = paste0(toCollapse$group, " (", toCollapse$size, ")"),
-     col  = toCollapse$col
-   )
-
-#   for (i in seq_len(nrow(toCollapse))) {
-
-#   }
+   vsize <- toCollapse$size
+   vnode <- toCollapse$node
+   vgroup <- toCollapse$groups
+   vcol <- toCollapse$col
 
     for (i in seq_len(nodes)) {
-       size <- toCollapse$size[i]
-       node  <- toCollapse$node[i]
+       size <- vsize[i]
+       node  <- vnode[i]
        plot <- scaleClade(
           plot,
           node=node,
@@ -641,10 +635,11 @@ collapse_treeplot <- function(plot, monoNodes, leavesTotal) {
 
    for (i in seq_len(nodes)) {
 
-     node  <- toCollapse$node[i]
-     group <- toCollapse$group[i]
-     size  <- toCollapse$size[i]
-     col   <- toCollapse$col[i]
+     node  <- vnode[i]
+     group <- vgroup[i]
+     size  <- vsize[i]
+     col   <- vcol[i]
+
      label <- paste0(group, " (", size, ")")
 
      plot <- plot +
