@@ -11,8 +11,11 @@ dependencies:
   - r-tidyverse
   - r-phytools
   - r-gplots
+  - r-systemfonts
   - bioconductor-ggtree
   - bioconductor-treeio
+  - fontconfig
+  - freetype
   - pip
   - pip:
     - setuptools

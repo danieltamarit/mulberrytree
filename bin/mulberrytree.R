@@ -12,6 +12,8 @@ suppressPackageStartupMessages(library(phytools, include.only="midpoint.root"))
 suppressPackageStartupMessages(library(ape, include.only="write.nexus"))
 suppressPackageStartupMessages(library(gplots, include.only="col2hex"))
 
+suppressPackageStartupMessages(library(systemfonts))
+avoidFontsWarning <- system_fonts()
 
 ###### PARAMETERS AND SOURCE FUNCTIONS
 
@@ -132,6 +134,7 @@ write.nexus(outtreeUncol, file=outfileUncolNxs)
 
 groupedTree <- groupClade(tree, monoNodes$node)
 nNodes <- groupedTree$Nnode
+nLeaves <- length(groupedTree$tip.labels)
 
 ###### CREATE BASE TREE, RESCALE MONOPHYLETIC GROUPS AND PRINT THEM
 
@@ -144,7 +147,7 @@ catyellow("Preparing collapsed tree...")
 cat("\n")
 
 p <- ggtree(groupedTree) + xlim(NA,x_limit)
-p <- collapse_treeplot(p, monoNodes, nNodes)
+p <- collapse_treeplot(p, monoNodes, nLeaves)
 if(length(color_vector_groups)>0) {
 	p <- color_branches(p, groupedOTUs, color_vector_groups)
 }

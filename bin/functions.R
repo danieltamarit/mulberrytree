@@ -614,7 +614,7 @@ groupAnalysis <- function(group) {
 
 ###### TREE PLOTTING
 
-collapse_treeplot <- function(plot, monoNodes, nodesTotal) {
+collapse_treeplot <- function(plot, monoNodes, leavesTotal) {
 
    toCollapse <- distinct(monoNodes)
    nodes <- length(toCollapse$node)
@@ -625,19 +625,21 @@ collapse_treeplot <- function(plot, monoNodes, nodesTotal) {
      col  = toCollapse$col
    )
 
-   for (i in seq_len(nrow(toCollapse))) {
+#   for (i in seq_len(nrow(toCollapse))) {
 
-     plot <- collapse(
-       plot,
-       node = toCollapse$node[i],
-       mode = "mixed",
-       fill = toCollapse$col[i],
-       col  = "black"
-     )
-   }
+#   }
 
-   for (i in seq_len(nrow(toCollapse))) {
+    for (i in seq_len(nodes)) {
+       size <- toCollapse$size[i]
+       node  <- toCollapse$node[i]
+       plot <- scaleClade(
+          plot,
+          node=node,
+          scale= max(0.15, 1/log2(size+1))
+       )
+    }
 
+   for (i in seq_len(nodes)) {
 
      node  <- toCollapse$node[i]
      group <- toCollapse$group[i]
@@ -654,6 +656,16 @@ collapse_treeplot <- function(plot, monoNodes, nodesTotal) {
         barcolour = "white",
         textcolour = col
       )
+
+      plot <- collapse(
+        plot,
+        node = node,
+        mode = "mixed",
+        fill = col,
+        col  = "black"
+      )
+
+
    }
 
    plot <- plot + theme(legend.position="none")
@@ -814,8 +826,9 @@ draw_root <- function(tree, plot, root)  {
 }
 
 
-calculateHeightCollapsed <- function(tree, toCollapse) {
+calculateHeightCollapsed <- function(tree, monoNodes) {
    nLeaves <- length(tree$tip.label)
+   toCollapse <- distinct(monoNodes)
    nCollapsedGroups <- nrow(toCollapse)
    uncollapsedLeaves <- nLeaves - sum(toCollapse$size)
 
