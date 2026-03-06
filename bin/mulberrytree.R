@@ -134,7 +134,6 @@ write.nexus(outtreeUncol, file=outfileUncolNxs)
 
 groupedTree <- groupClade(tree, monoNodes$node)
 nNodes <- groupedTree$Nnode
-nLeaves <- length(groupedTree$tip.labels)
 
 ###### CREATE BASE TREE, RESCALE MONOPHYLETIC GROUPS AND PRINT THEM
 
@@ -147,7 +146,7 @@ catyellow("Preparing collapsed tree...")
 cat("\n")
 
 p <- ggtree(groupedTree) + xlim(NA,x_limit)
-p <- collapse_treeplot(p, monoNodes, nLeaves)
+p <- collapse_treeplot(p, monoNodes)
 if(length(color_vector_groups)>0) {
 	p <- color_branches(p, groupedOTUs, color_vector_groups)
 }

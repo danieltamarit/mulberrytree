@@ -614,26 +614,31 @@ groupAnalysis <- function(group) {
 
 ###### TREE PLOTTING
 
-collapse_treeplot <- function(plot, monoNodes, leavesTotal) {
+cladeScale <- function(size, minScale = 0.15) {
+    scale <- max(0.15, 1/log2(size+1))
+    return(scale)
+}
+
+collapse_treeplot <- function(plot, monoNodes) {
 
    toCollapse <- distinct(monoNodes)
 
    vsize <- toCollapse$size
    vnode <- toCollapse$node
-   vgroup <- toCollapse$groups
+   vgroup <- toCollapse$group
    vcol <- toCollapse$col
 
-    for (i in seq_len(nodes)) {
+    for (i in seq_len(length(vnode))) {
        size <- vsize[i]
        node  <- vnode[i]
        plot <- scaleClade(
           plot,
           node=node,
-          scale= max(0.15, 1/log2(size+1))
+          scale=cladeScale(size)
        )
     }
 
-   for (i in seq_len(nodes)) {
+   for (i in seq_len(length(vnode))) {
 
      node  <- vnode[i]
      group <- vgroup[i]
