@@ -1,6 +1,6 @@
 # mulberrytree
 
-![Mulberry tree painting by Van Gogh](https://en.wikipedia.org/wiki/The_Mulberry_Tree_(Van_Gogh)#/media/File:Vincent_van_Gogh_-_Moerbeiboom.jpg)
+![Mulberry tree painting by Van Gogh](https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Vincent_van_Gogh_-_Moerbeiboom.jpg/1920px-Vincent_van_Gogh_-_Moerbeiboom.jpg)
 
 This script produces publication-quality figures from Newick tree files, collapsing user-defined groups of leaves.
 
